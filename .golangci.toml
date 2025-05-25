@@ -7,7 +7,7 @@ tests = true
 enable = ["errcheck", "govet", "ineffassign", "staticcheck", "unused"]
 
 [formatters]
-enable = ["gofmt", "goimports"]
+enable = ["gofmt", "gofumpt", "goimports", "golines"]
 
 [issues]
 max-same-issues = 0

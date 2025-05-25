@@ -21,3 +21,7 @@ migrate-diff:
 		--dir "file://internal/infrastructure/ent/migrations" \
 		--to "ent://internal/infrastructure/ent/schema" \
 		--dev-url "sqlite://file?mode=memory&_fk=1"
+
+.PHONY: fmt
+lint:
+	golangci-lint fmt

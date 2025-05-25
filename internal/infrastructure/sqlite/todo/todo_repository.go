@@ -44,7 +44,6 @@ func (r todoSqliteRepository) FindAll(ctx context.Context) (todos []*todo.Todo, 
 		Query().
 		Where(todoschema.DeletedAtIsNil()).
 		All(ctx)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to find all todos: %w", err)
 	}
@@ -60,7 +59,10 @@ func (r todoSqliteRepository) FindAll(ctx context.Context) (todos []*todo.Todo, 
 }
 
 // FindByID returns the Todo with the given ID.
-func (r todoSqliteRepository) FindByID(ctx context.Context, id todo.TodoID) (todo *todo.Todo, err error) {
+func (r todoSqliteRepository) FindByID(
+	ctx context.Context,
+	id todo.TodoID,
+) (todo *todo.Todo, err error) {
 	entity, err := r.client.TodoSchema.Get(ctx, id.UUID())
 	if err != nil {
 		return nil, fmt.Errorf("failed to find todo %v: %w", id, err)
@@ -71,7 +73,10 @@ func (r todoSqliteRepository) FindByID(ctx context.Context, id todo.TodoID) (tod
 
 // Update updates the Todo with the given ID.
 func (r todoSqliteRepository) Update(ctx context.Context, todo *todo.Todo) (err error) {
-	_, err = r.client.TodoSchema.UpdateOneID(todo.ID().UUID()).SetTitle(todo.Title()).SetBody(todo.Body()).Save(ctx)
+	_, err = r.client.TodoSchema.UpdateOneID(todo.ID().UUID()).
+		SetTitle(todo.Title()).
+		SetBody(todo.Body()).
+		Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update todo %v: %w", todo.ID(), err)
 	}
