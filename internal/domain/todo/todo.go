@@ -28,25 +28,31 @@ func NewTodo(title string, body string) (*Todo, error) {
 	}, nil
 }
 
+// ID returns the ID of the Todo.
 func (t Todo) ID() TodoID {
 	return t.id
 }
 
+// Title returns the title of the Todo.
 func (t Todo) Title() string {
 	return t.title
 }
 
+// Body returns the body of the Todo.
 func (t Todo) Body() string {
 	return t.body
 }
 
+// CreatedAt returns the created at of the Todo.
 func (t Todo) CreatedAt() time.Time {
 	return t.createdAt
 }
 
+// UpdatedAt returns the updated at of the Todo.
 func (t Todo) UpdatedAt() time.Time {
 	return t.updatedAt
 }
+
 
 // ReconstructTodo reconstructs a Todo from the given values.
 func ReconstructTodo(id uuid.UUID, title string, body string, createdAt time.Time, updatedAt time.Time) *Todo {
