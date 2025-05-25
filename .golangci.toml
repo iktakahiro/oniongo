@@ -1,0 +1,11 @@
+version = "2"
+
+[run]
+tests = true
+
+[linters]
+enable = ["errcheck", "govet", "ineffassign", "staticcheck", "unused"]
+
+[issues]
+max-same-issues = 0
+max-issues-per-linter = 0

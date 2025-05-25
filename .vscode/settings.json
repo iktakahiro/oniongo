@@ -1,0 +1,15 @@
+{
+	"cSpell.words": [
+		"codegen",
+		"entc",
+		"entgen",
+		"errcheck",
+		"govet",
+		"IDEQ",
+		"ineffassign",
+		"staticcheck",
+		"todoapp",
+		"todopsql",
+		"todoschema"
+	]
+}
