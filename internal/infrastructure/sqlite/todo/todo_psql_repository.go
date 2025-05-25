@@ -6,7 +6,6 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/sqlite/ent"
-	"github.com/iktakahiro/oniongo/internal/infrastructure/sqlite/ent/todoschema"
 )
 
 // todoPsqlRepository is the implementation of the TodoRepository interface.
@@ -24,9 +23,9 @@ func NewTodoPsqlRepository() todo.TodoRepository {
 	return &todoPsqlRepository{client: client}
 }
 
-// Save creates the Todo.
-func (r todoPsqlRepository) Save(ctx context.Context, todo *todo.Todo) error {
-	_, err := r.client.TodoSchema.Create().SetTitle(todo.Title).SetBody(todo.Body).Save(ctx)
+// Create creates the Todo.
+func (r todoPsqlRepository) Create(ctx context.Context, todo *todo.Todo) error {
+	_, err := r.client.TodoSchema.Create().SetTitle(todo.Title()).SetBody(todo.Body()).Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create todo: %w", err)
 	}
@@ -42,7 +41,7 @@ func (r todoPsqlRepository) FindAll(ctx context.Context) (todos []*todo.Todo, er
 
 	todos = make([]*todo.Todo, len(entities))
 	for i, entity := range entities {
-		todos[i], err = r.toDomain(entity)
+		todos[i], err = convertEntToTodo(entity)
 		if err != nil {
 			return nil, fmt.Errorf("failed to convert to domain %v: %w", entity.ID, err)
 		}
@@ -52,18 +51,22 @@ func (r todoPsqlRepository) FindAll(ctx context.Context) (todos []*todo.Todo, er
 
 // FindByID returns the Todo with the given ID.
 func (r todoPsqlRepository) FindByID(ctx context.Context, id todo.TodoID) (todo *todo.Todo, err error) {
-	entity, err := r.client.TodoSchema.Query().Where(
-		todoschema.IDEQ(id.UUID()),
-	).First(ctx)
+	entity, err := r.client.TodoSchema.Get(ctx, id.UUID())
 	if err != nil {
 		return nil, fmt.Errorf("failed to find todo %v: %w", id, err)
 	}
 
-	todo, err = r.toDomain(entity)
-
-	return
+	return convertEntToTodo(entity)
 }
 
+// Update updates the Todo with the given ID.
+func (r todoPsqlRepository) Update(ctx context.Context, todo *todo.Todo) (err error) {
+	_, err = r.client.TodoSchema.UpdateOneID(todo.ID().UUID()).SetTitle(todo.Title()).SetBody(todo.Body()).Save(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to update todo %v: %w", todo.ID(), err)
+	}
+	return nil
+}
 // Delete deletes the Todo with the given ID.
 func (r todoPsqlRepository) Delete(ctx context.Context, id todo.TodoID) (err error) {
 	err = r.client.TodoSchema.DeleteOneID(id.UUID()).Exec(ctx)
@@ -73,13 +76,7 @@ func (r todoPsqlRepository) Delete(ctx context.Context, id todo.TodoID) (err err
 	return nil
 }
 
-func (r todoPsqlRepository) toDomain(v *ent.TodoSchema) (*todo.Todo, error) {
-	id := todo.TodoID(v.ID)
-	return &todo.Todo{
-		ID:        id,
-		Title:     v.Title,
-		Body:      v.Body,
-		CreatedAt: v.CreatedAt,
-		UpdatedAt: v.UpdatedAt,
-	}, nil
+// convertEntToTodo converts ent.TodoSchema to domain Todo
+func convertEntToTodo(v *ent.TodoSchema) (*todo.Todo, error) {
+	return todo.ReconstructTodo(v.ID, v.Title, v.Body, v.CreatedAt, v.UpdatedAt), nil
 }

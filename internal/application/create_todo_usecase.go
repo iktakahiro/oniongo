@@ -34,7 +34,7 @@ func (u createTodoUseCase) Execute(ctx context.Context, req CreateTodoRequest) e
 	if err != nil {
 		return fmt.Errorf("failed to create todo: %w", err)
 	}
-	err = u.todoRepository.Save(ctx, todo)
+	err = u.todoRepository.Create(ctx, todo)
 	if err != nil {
 		return fmt.Errorf("failed to save todo: %w", err)
 	}
