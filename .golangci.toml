@@ -4,10 +4,17 @@ version = "2"
 tests = true
 
 [linters]
-enable = ["errcheck", "govet", "ineffassign", "staticcheck", "unused"]
+enable = [
+	"errcheck",
+	"errorlint",
+	"govet",
+	"ineffassign",
+	"staticcheck",
+	"unused",
+]
 
 [formatters]
-enable = ["gofmt", "gofumpt", "goimports", "golines"]
+enable = ["gofmt", "gofumpt", "gci", "golines"]
 
 [issues]
 max-same-issues = 0
