@@ -46,4 +46,4 @@ func (u *completeTodoUseCase) Execute(ctx context.Context, req CompleteTodoReque
 		return fmt.Errorf("failed to update todo: %w", err)
 	}
 	return nil
-} 
+}

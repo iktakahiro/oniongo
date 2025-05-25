@@ -6,6 +6,9 @@ tests = true
 [linters]
 enable = ["errcheck", "govet", "ineffassign", "staticcheck", "unused"]
 
+[formatters]
+enable = ["gofmt", "goimports"]
+
 [issues]
 max-same-issues = 0
 max-issues-per-linter = 0

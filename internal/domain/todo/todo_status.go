@@ -57,4 +57,4 @@ func AllStatuses() []TodoStatus {
 		TodoStatusInProgress,
 		TodoStatusCompleted,
 	}
-} 
+}

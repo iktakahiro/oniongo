@@ -7,7 +7,7 @@ import (
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 )
 
-type GetTodosRequest struct {}
+type GetTodosRequest struct{}
 
 // GetTodosUseCase is the interface that wraps the basic GetTodos operation.
 type GetTodosUseCase interface {

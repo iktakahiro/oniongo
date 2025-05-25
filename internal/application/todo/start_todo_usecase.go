@@ -40,4 +40,4 @@ func (u *startTodoUseCase) Execute(ctx context.Context, req StartTodoRequest) er
 		return fmt.Errorf("failed to update todo: %w", err)
 	}
 	return nil
-} 
+}

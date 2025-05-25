@@ -144,4 +144,4 @@ func TestNewTodoStatusFromString(t *testing.T) {
 			}
 		})
 	}
-} 
+}
