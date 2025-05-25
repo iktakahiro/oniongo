@@ -5,6 +5,7 @@
 		"entgen",
 		"entsql",
 		"errcheck",
+		"golangci",
 		"govet",
 		"IDEQ",
 		"ineffassign",

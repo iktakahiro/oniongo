@@ -1,6 +1,14 @@
 # Directory variables
 ENT_DIR := internal/infrastructure/psql
 
+.PHONY: fmt
+fmt:
+	golangci-lint fmt
+
+.PHONY: lint
+lint:
+	golangci-lint run
+
 # make ent-new name=Todo
 .PHONY: ent-generate
 ent-generate:
@@ -22,6 +30,3 @@ migrate-diff:
 		--to "ent://internal/infrastructure/ent/schema" \
 		--dev-url "sqlite://file?mode=memory&_fk=1"
 
-.PHONY: fmt
-lint:
-	golangci-lint fmt
