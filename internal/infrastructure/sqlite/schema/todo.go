@@ -27,8 +27,11 @@ func (TodoSchema) Mixin() []ent.Mixin {
 // Fields of the Todo.
 func (TodoSchema) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("title"),
+		field.String("title").NotEmpty(),
 		field.String("body"),
+		field.Enum("status").
+			Values("NOT_STARTED", "IN_PROGRESS", "COMPLETED").
+			Default("NOT_STARTED"),
 	}
 }
 

@@ -80,6 +80,7 @@ func TestReconstructTodo(t *testing.T) {
 		id        uuid.UUID
 		title     string
 		body      string
+		status    TodoStatus
 		createdAt time.Time
 		updatedAt time.Time
 	}{
@@ -88,6 +89,7 @@ func TestReconstructTodo(t *testing.T) {
 			id:        uuid.New(),
 			title:     "Reconstructed Todo",
 			body:      "This is a reconstructed todo",
+			status:    TodoStatusNotStarted,
 			createdAt: time.Date(2023, 1, 1, 0, 0, 0, 0, time.UTC),
 			updatedAt: time.Date(2023, 1, 2, 0, 0, 0, 0, time.UTC),
 		},
@@ -96,6 +98,7 @@ func TestReconstructTodo(t *testing.T) {
 			id:        uuid.New(),
 			title:     "",
 			body:      "",
+			status:    TodoStatusNotStarted,
 			createdAt: time.Time{},
 			updatedAt: time.Time{},
 		},
@@ -104,13 +107,14 @@ func TestReconstructTodo(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// When
-			todo := ReconstructTodo(tt.id, tt.title, tt.body, tt.createdAt, tt.updatedAt)
+			todo := ReconstructTodo(tt.id, tt.title, tt.body, tt.status, tt.createdAt, tt.updatedAt)
 
 			// Then
 			require.NotNil(t, todo)
 			require.Equal(t, TodoID(tt.id), todo.ID())
 			require.Equal(t, tt.title, todo.Title())
 			require.Equal(t, tt.body, todo.Body())
+			require.Equal(t, tt.status, todo.Status())
 			require.Equal(t, tt.createdAt, todo.CreatedAt())
 			require.Equal(t, tt.updatedAt, todo.UpdatedAt())
 		})

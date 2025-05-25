@@ -27,8 +27,10 @@ var schemaGraph = func() *sqlgraph.Schema {
 		Fields: map[string]*sqlgraph.FieldSpec{
 			todoschema.FieldCreatedAt: {Type: field.TypeTime, Column: todoschema.FieldCreatedAt},
 			todoschema.FieldUpdatedAt: {Type: field.TypeTime, Column: todoschema.FieldUpdatedAt},
+			todoschema.FieldDeletedAt: {Type: field.TypeTime, Column: todoschema.FieldDeletedAt},
 			todoschema.FieldTitle:     {Type: field.TypeString, Column: todoschema.FieldTitle},
 			todoschema.FieldBody:      {Type: field.TypeString, Column: todoschema.FieldBody},
+			todoschema.FieldStatus:    {Type: field.TypeEnum, Column: todoschema.FieldStatus},
 		},
 	}
 	return graph
@@ -90,6 +92,11 @@ func (f *TodoSchemaFilter) WhereUpdatedAt(p entql.TimeP) {
 	f.Where(p.Field(todoschema.FieldUpdatedAt))
 }
 
+// WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.
+func (f *TodoSchemaFilter) WhereDeletedAt(p entql.TimeP) {
+	f.Where(p.Field(todoschema.FieldDeletedAt))
+}
+
 // WhereTitle applies the entql string predicate on the title field.
 func (f *TodoSchemaFilter) WhereTitle(p entql.StringP) {
 	f.Where(p.Field(todoschema.FieldTitle))
@@ -98,4 +105,9 @@ func (f *TodoSchemaFilter) WhereTitle(p entql.StringP) {
 // WhereBody applies the entql string predicate on the body field.
 func (f *TodoSchemaFilter) WhereBody(p entql.StringP) {
 	f.Where(p.Field(todoschema.FieldBody))
+}
+
+// WhereStatus applies the entql string predicate on the status field.
+func (f *TodoSchemaFilter) WhereStatus(p entql.StringP) {
+	f.Where(p.Field(todoschema.FieldStatus))
 }

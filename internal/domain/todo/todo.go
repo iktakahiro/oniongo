@@ -116,12 +116,12 @@ func (t Todo) IsCompleted() bool {
 }
 
 // ReconstructTodo reconstructs a Todo from the given values.
-func ReconstructTodo(id uuid.UUID, title string, body string, createdAt time.Time, updatedAt time.Time) *Todo {
+func ReconstructTodo(id uuid.UUID, title string, body string, status TodoStatus, createdAt time.Time, updatedAt time.Time) *Todo {
 	return &Todo{
 		id:          TodoID(id),
 		title:       title,
 		body:        body,
-		status:      TodoStatusNotStarted,
+		status:      status,
 		createdAt:   createdAt,
 		updatedAt:   updatedAt,
 		completedAt: nil,

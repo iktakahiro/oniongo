@@ -14,8 +14,10 @@ var (
 		{Name: "id", Type: field.TypeUUID},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "title", Type: field.TypeString},
 		{Name: "body", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"NOT_STARTED", "IN_PROGRESS", "COMPLETED"}, Default: "NOT_STARTED"},
 	}
 	// TodoTable holds the schema information for the "todo" table.
 	TodoTable = &schema.Table{

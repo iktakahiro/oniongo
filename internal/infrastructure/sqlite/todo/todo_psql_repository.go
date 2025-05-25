@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/sqlite/ent"
+	"github.com/iktakahiro/oniongo/internal/infrastructure/sqlite/ent/todoschema"
 )
 
 // todoPsqlRepository is the implementation of the TodoRepository interface.
@@ -25,7 +26,12 @@ func NewTodoPsqlRepository() todo.TodoRepository {
 
 // Create creates the Todo.
 func (r todoPsqlRepository) Create(ctx context.Context, todo *todo.Todo) error {
-	_, err := r.client.TodoSchema.Create().SetTitle(todo.Title()).SetBody(todo.Body()).Save(ctx)
+	status := todoschema.Status(todo.Status().String())
+	_, err := r.client.TodoSchema.Create().
+	SetTitle(todo.Title()).
+	SetBody(todo.Body()).
+	SetStatus(status).
+	Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create todo: %w", err)
 	}
@@ -78,5 +84,9 @@ func (r todoPsqlRepository) Delete(ctx context.Context, id todo.TodoID) (err err
 
 // convertEntToTodo converts ent.TodoSchema to domain Todo
 func convertEntToTodo(v *ent.TodoSchema) (*todo.Todo, error) {
-	return todo.ReconstructTodo(v.ID, v.Title, v.Body, v.CreatedAt, v.UpdatedAt), nil
+	status, err := todo.NewTodoStatusFromString(string(v.Status))
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert status %v: %w", v.Status, err)
+	}
+	return todo.ReconstructTodo(v.ID, v.Title, v.Body, status, v.CreatedAt, v.UpdatedAt), nil
 }

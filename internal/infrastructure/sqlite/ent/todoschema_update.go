@@ -36,6 +36,26 @@ func (tsu *TodoSchemaUpdate) SetUpdatedAt(t time.Time) *TodoSchemaUpdate {
 	return tsu
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (tsu *TodoSchemaUpdate) SetDeletedAt(t time.Time) *TodoSchemaUpdate {
+	tsu.mutation.SetDeletedAt(t)
+	return tsu
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (tsu *TodoSchemaUpdate) SetNillableDeletedAt(t *time.Time) *TodoSchemaUpdate {
+	if t != nil {
+		tsu.SetDeletedAt(*t)
+	}
+	return tsu
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (tsu *TodoSchemaUpdate) ClearDeletedAt() *TodoSchemaUpdate {
+	tsu.mutation.ClearDeletedAt()
+	return tsu
+}
+
 // SetTitle sets the "title" field.
 func (tsu *TodoSchemaUpdate) SetTitle(s string) *TodoSchemaUpdate {
 	tsu.mutation.SetTitle(s)
@@ -60,6 +80,20 @@ func (tsu *TodoSchemaUpdate) SetBody(s string) *TodoSchemaUpdate {
 func (tsu *TodoSchemaUpdate) SetNillableBody(s *string) *TodoSchemaUpdate {
 	if s != nil {
 		tsu.SetBody(*s)
+	}
+	return tsu
+}
+
+// SetStatus sets the "status" field.
+func (tsu *TodoSchemaUpdate) SetStatus(t todoschema.Status) *TodoSchemaUpdate {
+	tsu.mutation.SetStatus(t)
+	return tsu
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tsu *TodoSchemaUpdate) SetNillableStatus(t *todoschema.Status) *TodoSchemaUpdate {
+	if t != nil {
+		tsu.SetStatus(*t)
 	}
 	return tsu
 }
@@ -105,6 +139,21 @@ func (tsu *TodoSchemaUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tsu *TodoSchemaUpdate) check() error {
+	if v, ok := tsu.mutation.Title(); ok {
+		if err := todoschema.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "TodoSchema.title": %w`, err)}
+		}
+	}
+	if v, ok := tsu.mutation.Status(); ok {
+		if err := todoschema.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TodoSchema.status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (tsu *TodoSchemaUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *TodoSchemaUpdate {
 	tsu.modifiers = append(tsu.modifiers, modifiers...)
@@ -112,6 +161,9 @@ func (tsu *TodoSchemaUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) *To
 }
 
 func (tsu *TodoSchemaUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := tsu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(todoschema.Table, todoschema.Columns, sqlgraph.NewFieldSpec(todoschema.FieldID, field.TypeUUID))
 	if ps := tsu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -123,11 +175,20 @@ func (tsu *TodoSchemaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tsu.mutation.UpdatedAt(); ok {
 		_spec.SetField(todoschema.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := tsu.mutation.DeletedAt(); ok {
+		_spec.SetField(todoschema.FieldDeletedAt, field.TypeTime, value)
+	}
+	if tsu.mutation.DeletedAtCleared() {
+		_spec.ClearField(todoschema.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := tsu.mutation.Title(); ok {
 		_spec.SetField(todoschema.FieldTitle, field.TypeString, value)
 	}
 	if value, ok := tsu.mutation.Body(); ok {
 		_spec.SetField(todoschema.FieldBody, field.TypeString, value)
+	}
+	if value, ok := tsu.mutation.Status(); ok {
+		_spec.SetField(todoschema.FieldStatus, field.TypeEnum, value)
 	}
 	_spec.Node.Schema = tsu.schemaConfig.TodoSchema
 	ctx = internal.NewSchemaConfigContext(ctx, tsu.schemaConfig)
@@ -159,6 +220,26 @@ func (tsuo *TodoSchemaUpdateOne) SetUpdatedAt(t time.Time) *TodoSchemaUpdateOne 
 	return tsuo
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (tsuo *TodoSchemaUpdateOne) SetDeletedAt(t time.Time) *TodoSchemaUpdateOne {
+	tsuo.mutation.SetDeletedAt(t)
+	return tsuo
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (tsuo *TodoSchemaUpdateOne) SetNillableDeletedAt(t *time.Time) *TodoSchemaUpdateOne {
+	if t != nil {
+		tsuo.SetDeletedAt(*t)
+	}
+	return tsuo
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (tsuo *TodoSchemaUpdateOne) ClearDeletedAt() *TodoSchemaUpdateOne {
+	tsuo.mutation.ClearDeletedAt()
+	return tsuo
+}
+
 // SetTitle sets the "title" field.
 func (tsuo *TodoSchemaUpdateOne) SetTitle(s string) *TodoSchemaUpdateOne {
 	tsuo.mutation.SetTitle(s)
@@ -183,6 +264,20 @@ func (tsuo *TodoSchemaUpdateOne) SetBody(s string) *TodoSchemaUpdateOne {
 func (tsuo *TodoSchemaUpdateOne) SetNillableBody(s *string) *TodoSchemaUpdateOne {
 	if s != nil {
 		tsuo.SetBody(*s)
+	}
+	return tsuo
+}
+
+// SetStatus sets the "status" field.
+func (tsuo *TodoSchemaUpdateOne) SetStatus(t todoschema.Status) *TodoSchemaUpdateOne {
+	tsuo.mutation.SetStatus(t)
+	return tsuo
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tsuo *TodoSchemaUpdateOne) SetNillableStatus(t *todoschema.Status) *TodoSchemaUpdateOne {
+	if t != nil {
+		tsuo.SetStatus(*t)
 	}
 	return tsuo
 }
@@ -241,6 +336,21 @@ func (tsuo *TodoSchemaUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (tsuo *TodoSchemaUpdateOne) check() error {
+	if v, ok := tsuo.mutation.Title(); ok {
+		if err := todoschema.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "TodoSchema.title": %w`, err)}
+		}
+	}
+	if v, ok := tsuo.mutation.Status(); ok {
+		if err := todoschema.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TodoSchema.status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 // Modify adds a statement modifier for attaching custom logic to the UPDATE statement.
 func (tsuo *TodoSchemaUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder)) *TodoSchemaUpdateOne {
 	tsuo.modifiers = append(tsuo.modifiers, modifiers...)
@@ -248,6 +358,9 @@ func (tsuo *TodoSchemaUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilder))
 }
 
 func (tsuo *TodoSchemaUpdateOne) sqlSave(ctx context.Context) (_node *TodoSchema, err error) {
+	if err := tsuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(todoschema.Table, todoschema.Columns, sqlgraph.NewFieldSpec(todoschema.FieldID, field.TypeUUID))
 	id, ok := tsuo.mutation.ID()
 	if !ok {
@@ -276,11 +389,20 @@ func (tsuo *TodoSchemaUpdateOne) sqlSave(ctx context.Context) (_node *TodoSchema
 	if value, ok := tsuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(todoschema.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := tsuo.mutation.DeletedAt(); ok {
+		_spec.SetField(todoschema.FieldDeletedAt, field.TypeTime, value)
+	}
+	if tsuo.mutation.DeletedAtCleared() {
+		_spec.ClearField(todoschema.FieldDeletedAt, field.TypeTime)
+	}
 	if value, ok := tsuo.mutation.Title(); ok {
 		_spec.SetField(todoschema.FieldTitle, field.TypeString, value)
 	}
 	if value, ok := tsuo.mutation.Body(); ok {
 		_spec.SetField(todoschema.FieldBody, field.TypeString, value)
+	}
+	if value, ok := tsuo.mutation.Status(); ok {
+		_spec.SetField(todoschema.FieldStatus, field.TypeEnum, value)
 	}
 	_spec.Node.Schema = tsuo.schemaConfig.TodoSchema
 	ctx = internal.NewSchemaConfigContext(ctx, tsuo.schemaConfig)

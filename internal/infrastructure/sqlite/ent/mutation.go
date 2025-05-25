@@ -36,8 +36,10 @@ type TodoSchemaMutation struct {
 	id            *uuid.UUID
 	created_at    *time.Time
 	updated_at    *time.Time
+	deleted_at    *time.Time
 	title         *string
 	body          *string
+	status        *todoschema.Status
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*TodoSchema, error)
@@ -220,6 +222,55 @@ func (m *TodoSchemaMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (m *TodoSchemaMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
+}
+
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *TodoSchemaMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletedAt returns the old "deleted_at" field's value of the TodoSchema entity.
+// If the TodoSchema object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoSchemaMutation) OldDeletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
+	}
+	return oldValue.DeletedAt, nil
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *TodoSchemaMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[todoschema.FieldDeletedAt] = struct{}{}
+}
+
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *TodoSchemaMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[todoschema.FieldDeletedAt]
+	return ok
+}
+
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *TodoSchemaMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, todoschema.FieldDeletedAt)
+}
+
 // SetTitle sets the "title" field.
 func (m *TodoSchemaMutation) SetTitle(s string) {
 	m.title = &s
@@ -292,6 +343,42 @@ func (m *TodoSchemaMutation) ResetBody() {
 	m.body = nil
 }
 
+// SetStatus sets the "status" field.
+func (m *TodoSchemaMutation) SetStatus(t todoschema.Status) {
+	m.status = &t
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *TodoSchemaMutation) Status() (r todoschema.Status, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the TodoSchema entity.
+// If the TodoSchema object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoSchemaMutation) OldStatus(ctx context.Context) (v todoschema.Status, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *TodoSchemaMutation) ResetStatus() {
+	m.status = nil
+}
+
 // Where appends a list predicates to the TodoSchemaMutation builder.
 func (m *TodoSchemaMutation) Where(ps ...predicate.TodoSchema) {
 	m.predicates = append(m.predicates, ps...)
@@ -326,18 +413,24 @@ func (m *TodoSchemaMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TodoSchemaMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 6)
 	if m.created_at != nil {
 		fields = append(fields, todoschema.FieldCreatedAt)
 	}
 	if m.updated_at != nil {
 		fields = append(fields, todoschema.FieldUpdatedAt)
 	}
+	if m.deleted_at != nil {
+		fields = append(fields, todoschema.FieldDeletedAt)
+	}
 	if m.title != nil {
 		fields = append(fields, todoschema.FieldTitle)
 	}
 	if m.body != nil {
 		fields = append(fields, todoschema.FieldBody)
+	}
+	if m.status != nil {
+		fields = append(fields, todoschema.FieldStatus)
 	}
 	return fields
 }
@@ -351,10 +444,14 @@ func (m *TodoSchemaMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case todoschema.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case todoschema.FieldDeletedAt:
+		return m.DeletedAt()
 	case todoschema.FieldTitle:
 		return m.Title()
 	case todoschema.FieldBody:
 		return m.Body()
+	case todoschema.FieldStatus:
+		return m.Status()
 	}
 	return nil, false
 }
@@ -368,10 +465,14 @@ func (m *TodoSchemaMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldCreatedAt(ctx)
 	case todoschema.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case todoschema.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	case todoschema.FieldTitle:
 		return m.OldTitle(ctx)
 	case todoschema.FieldBody:
 		return m.OldBody(ctx)
+	case todoschema.FieldStatus:
+		return m.OldStatus(ctx)
 	}
 	return nil, fmt.Errorf("unknown TodoSchema field %s", name)
 }
@@ -395,6 +496,13 @@ func (m *TodoSchemaMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case todoschema.FieldDeletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletedAt(v)
+		return nil
 	case todoschema.FieldTitle:
 		v, ok := value.(string)
 		if !ok {
@@ -408,6 +516,13 @@ func (m *TodoSchemaMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetBody(v)
+		return nil
+	case todoschema.FieldStatus:
+		v, ok := value.(todoschema.Status)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
 		return nil
 	}
 	return fmt.Errorf("unknown TodoSchema field %s", name)
@@ -438,7 +553,11 @@ func (m *TodoSchemaMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *TodoSchemaMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(todoschema.FieldDeletedAt) {
+		fields = append(fields, todoschema.FieldDeletedAt)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -451,6 +570,11 @@ func (m *TodoSchemaMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *TodoSchemaMutation) ClearField(name string) error {
+	switch name {
+	case todoschema.FieldDeletedAt:
+		m.ClearDeletedAt()
+		return nil
+	}
 	return fmt.Errorf("unknown TodoSchema nullable field %s", name)
 }
 
@@ -464,11 +588,17 @@ func (m *TodoSchemaMutation) ResetField(name string) error {
 	case todoschema.FieldUpdatedAt:
 		m.ResetUpdatedAt()
 		return nil
+	case todoschema.FieldDeletedAt:
+		m.ResetDeletedAt()
+		return nil
 	case todoschema.FieldTitle:
 		m.ResetTitle()
 		return nil
 	case todoschema.FieldBody:
 		m.ResetBody()
+		return nil
+	case todoschema.FieldStatus:
+		m.ResetStatus()
 		return nil
 	}
 	return fmt.Errorf("unknown TodoSchema field %s", name)

@@ -22,10 +22,14 @@ type TodoSchema struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt time.Time `json:"deleted_at,omitempty"`
 	// Title holds the value of the "title" field.
 	Title string `json:"title,omitempty"`
 	// Body holds the value of the "body" field.
-	Body         string `json:"body,omitempty"`
+	Body string `json:"body,omitempty"`
+	// Status holds the value of the "status" field.
+	Status       todoschema.Status `json:"status,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -34,9 +38,9 @@ func (*TodoSchema) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case todoschema.FieldTitle, todoschema.FieldBody:
+		case todoschema.FieldTitle, todoschema.FieldBody, todoschema.FieldStatus:
 			values[i] = new(sql.NullString)
-		case todoschema.FieldCreatedAt, todoschema.FieldUpdatedAt:
+		case todoschema.FieldCreatedAt, todoschema.FieldUpdatedAt, todoschema.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case todoschema.FieldID:
 			values[i] = new(uuid.UUID)
@@ -73,6 +77,12 @@ func (ts *TodoSchema) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ts.UpdatedAt = value.Time
 			}
+		case todoschema.FieldDeletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
+			} else if value.Valid {
+				ts.DeletedAt = value.Time
+			}
 		case todoschema.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
@@ -84,6 +94,12 @@ func (ts *TodoSchema) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field body", values[i])
 			} else if value.Valid {
 				ts.Body = value.String
+			}
+		case todoschema.FieldStatus:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field status", values[i])
+			} else if value.Valid {
+				ts.Status = todoschema.Status(value.String)
 			}
 		default:
 			ts.selectValues.Set(columns[i], values[i])
@@ -127,11 +143,17 @@ func (ts *TodoSchema) String() string {
 	builder.WriteString("updated_at=")
 	builder.WriteString(ts.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("deleted_at=")
+	builder.WriteString(ts.DeletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("title=")
 	builder.WriteString(ts.Title)
 	builder.WriteString(", ")
 	builder.WriteString("body=")
 	builder.WriteString(ts.Body)
+	builder.WriteString(", ")
+	builder.WriteString("status=")
+	builder.WriteString(fmt.Sprintf("%v", ts.Status))
 	builder.WriteByte(')')
 	return builder.String()
 }

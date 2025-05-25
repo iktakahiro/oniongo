@@ -52,6 +52,20 @@ func (tsc *TodoSchemaCreate) SetNillableUpdatedAt(t *time.Time) *TodoSchemaCreat
 	return tsc
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (tsc *TodoSchemaCreate) SetDeletedAt(t time.Time) *TodoSchemaCreate {
+	tsc.mutation.SetDeletedAt(t)
+	return tsc
+}
+
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (tsc *TodoSchemaCreate) SetNillableDeletedAt(t *time.Time) *TodoSchemaCreate {
+	if t != nil {
+		tsc.SetDeletedAt(*t)
+	}
+	return tsc
+}
+
 // SetTitle sets the "title" field.
 func (tsc *TodoSchemaCreate) SetTitle(s string) *TodoSchemaCreate {
 	tsc.mutation.SetTitle(s)
@@ -61,6 +75,20 @@ func (tsc *TodoSchemaCreate) SetTitle(s string) *TodoSchemaCreate {
 // SetBody sets the "body" field.
 func (tsc *TodoSchemaCreate) SetBody(s string) *TodoSchemaCreate {
 	tsc.mutation.SetBody(s)
+	return tsc
+}
+
+// SetStatus sets the "status" field.
+func (tsc *TodoSchemaCreate) SetStatus(t todoschema.Status) *TodoSchemaCreate {
+	tsc.mutation.SetStatus(t)
+	return tsc
+}
+
+// SetNillableStatus sets the "status" field if the given value is not nil.
+func (tsc *TodoSchemaCreate) SetNillableStatus(t *todoschema.Status) *TodoSchemaCreate {
+	if t != nil {
+		tsc.SetStatus(*t)
+	}
 	return tsc
 }
 
@@ -121,6 +149,10 @@ func (tsc *TodoSchemaCreate) defaults() {
 		v := todoschema.DefaultUpdatedAt()
 		tsc.mutation.SetUpdatedAt(v)
 	}
+	if _, ok := tsc.mutation.Status(); !ok {
+		v := todoschema.DefaultStatus
+		tsc.mutation.SetStatus(v)
+	}
 	if _, ok := tsc.mutation.ID(); !ok {
 		v := todoschema.DefaultID()
 		tsc.mutation.SetID(v)
@@ -138,8 +170,21 @@ func (tsc *TodoSchemaCreate) check() error {
 	if _, ok := tsc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "TodoSchema.title"`)}
 	}
+	if v, ok := tsc.mutation.Title(); ok {
+		if err := todoschema.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "TodoSchema.title": %w`, err)}
+		}
+	}
 	if _, ok := tsc.mutation.Body(); !ok {
 		return &ValidationError{Name: "body", err: errors.New(`ent: missing required field "TodoSchema.body"`)}
+	}
+	if _, ok := tsc.mutation.Status(); !ok {
+		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "TodoSchema.status"`)}
+	}
+	if v, ok := tsc.mutation.Status(); ok {
+		if err := todoschema.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "TodoSchema.status": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -186,6 +231,10 @@ func (tsc *TodoSchemaCreate) createSpec() (*TodoSchema, *sqlgraph.CreateSpec) {
 		_spec.SetField(todoschema.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := tsc.mutation.DeletedAt(); ok {
+		_spec.SetField(todoschema.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = value
+	}
 	if value, ok := tsc.mutation.Title(); ok {
 		_spec.SetField(todoschema.FieldTitle, field.TypeString, value)
 		_node.Title = value
@@ -193,6 +242,10 @@ func (tsc *TodoSchemaCreate) createSpec() (*TodoSchema, *sqlgraph.CreateSpec) {
 	if value, ok := tsc.mutation.Body(); ok {
 		_spec.SetField(todoschema.FieldBody, field.TypeString, value)
 		_node.Body = value
+	}
+	if value, ok := tsc.mutation.Status(); ok {
+		_spec.SetField(todoschema.FieldStatus, field.TypeEnum, value)
+		_node.Status = value
 	}
 	return _node, _spec
 }
@@ -258,6 +311,24 @@ func (u *TodoSchemaUpsert) UpdateUpdatedAt() *TodoSchemaUpsert {
 	return u
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (u *TodoSchemaUpsert) SetDeletedAt(v time.Time) *TodoSchemaUpsert {
+	u.Set(todoschema.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *TodoSchemaUpsert) UpdateDeletedAt() *TodoSchemaUpsert {
+	u.SetExcluded(todoschema.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *TodoSchemaUpsert) ClearDeletedAt() *TodoSchemaUpsert {
+	u.SetNull(todoschema.FieldDeletedAt)
+	return u
+}
+
 // SetTitle sets the "title" field.
 func (u *TodoSchemaUpsert) SetTitle(v string) *TodoSchemaUpsert {
 	u.Set(todoschema.FieldTitle, v)
@@ -279,6 +350,18 @@ func (u *TodoSchemaUpsert) SetBody(v string) *TodoSchemaUpsert {
 // UpdateBody sets the "body" field to the value that was provided on create.
 func (u *TodoSchemaUpsert) UpdateBody() *TodoSchemaUpsert {
 	u.SetExcluded(todoschema.FieldBody)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *TodoSchemaUpsert) SetStatus(v todoschema.Status) *TodoSchemaUpsert {
+	u.Set(todoschema.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TodoSchemaUpsert) UpdateStatus() *TodoSchemaUpsert {
+	u.SetExcluded(todoschema.FieldStatus)
 	return u
 }
 
@@ -347,6 +430,27 @@ func (u *TodoSchemaUpsertOne) UpdateUpdatedAt() *TodoSchemaUpsertOne {
 	})
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (u *TodoSchemaUpsertOne) SetDeletedAt(v time.Time) *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *TodoSchemaUpsertOne) UpdateDeletedAt() *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *TodoSchemaUpsertOne) ClearDeletedAt() *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
 // SetTitle sets the "title" field.
 func (u *TodoSchemaUpsertOne) SetTitle(v string) *TodoSchemaUpsertOne {
 	return u.Update(func(s *TodoSchemaUpsert) {
@@ -372,6 +476,20 @@ func (u *TodoSchemaUpsertOne) SetBody(v string) *TodoSchemaUpsertOne {
 func (u *TodoSchemaUpsertOne) UpdateBody() *TodoSchemaUpsertOne {
 	return u.Update(func(s *TodoSchemaUpsert) {
 		s.UpdateBody()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *TodoSchemaUpsertOne) SetStatus(v todoschema.Status) *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TodoSchemaUpsertOne) UpdateStatus() *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.UpdateStatus()
 	})
 }
 
@@ -607,6 +725,27 @@ func (u *TodoSchemaUpsertBulk) UpdateUpdatedAt() *TodoSchemaUpsertBulk {
 	})
 }
 
+// SetDeletedAt sets the "deleted_at" field.
+func (u *TodoSchemaUpsertBulk) SetDeletedAt(v time.Time) *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *TodoSchemaUpsertBulk) UpdateDeletedAt() *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *TodoSchemaUpsertBulk) ClearDeletedAt() *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
 // SetTitle sets the "title" field.
 func (u *TodoSchemaUpsertBulk) SetTitle(v string) *TodoSchemaUpsertBulk {
 	return u.Update(func(s *TodoSchemaUpsert) {
@@ -632,6 +771,20 @@ func (u *TodoSchemaUpsertBulk) SetBody(v string) *TodoSchemaUpsertBulk {
 func (u *TodoSchemaUpsertBulk) UpdateBody() *TodoSchemaUpsertBulk {
 	return u.Update(func(s *TodoSchemaUpsert) {
 		s.UpdateBody()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *TodoSchemaUpsertBulk) SetStatus(v todoschema.Status) *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *TodoSchemaUpsertBulk) UpdateStatus() *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.UpdateStatus()
 	})
 }
 

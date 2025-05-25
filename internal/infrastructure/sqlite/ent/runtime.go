@@ -29,6 +29,10 @@ func init() {
 	todoschema.DefaultUpdatedAt = todoschemaDescUpdatedAt.Default.(func() time.Time)
 	// todoschema.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	todoschema.UpdateDefaultUpdatedAt = todoschemaDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// todoschemaDescTitle is the schema descriptor for title field.
+	todoschemaDescTitle := todoschemaFields[0].Descriptor()
+	// todoschema.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	todoschema.TitleValidator = todoschemaDescTitle.Validators[0].(func(string) error)
 	// todoschemaDescID is the schema descriptor for id field.
 	todoschemaDescID := todoschemaMixinFields0[0].Descriptor()
 	// todoschema.DefaultID holds the default value on creation for the id field.
