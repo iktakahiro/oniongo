@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/iktakahiro/oniongo/internal/application"
+	"github.com/iktakahiro/oniongo/internal/application/uow"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen"
 )
 
@@ -18,7 +18,7 @@ const (
 type entTransactionManager struct{}
 
 // NewEntTransactionManager creates a new ent transaction manager.
-func NewEntTransactionManager() application.TransactionManager {
+func NewEntTransactionManager() uow.TransactionManager {
 	return &entTransactionManager{}
 }
 

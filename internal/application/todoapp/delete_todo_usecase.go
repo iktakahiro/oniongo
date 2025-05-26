@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iktakahiro/oniongo/internal/application"
+	"github.com/iktakahiro/oniongo/internal/application/uow"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 	"github.com/samber/do"
 )
@@ -21,7 +21,7 @@ type DeleteTodoUseCase interface {
 // deleteTodoUseCase is the implementation of the DeleteTodoUseCase interface.
 type deleteTodoUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      application.TransactionManager
+	txManager      uow.TransactionManager
 }
 
 // NewDeleteTodoUseCase creates a new DeleteTodoUseCase.
@@ -30,7 +30,7 @@ func NewDeleteTodoUseCase(i *do.Injector) (DeleteTodoUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionManager](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}

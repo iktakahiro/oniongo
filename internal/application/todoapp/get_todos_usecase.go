@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iktakahiro/oniongo/internal/application"
+	"github.com/iktakahiro/oniongo/internal/application/uow"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 	"github.com/samber/do"
 )
@@ -19,7 +19,7 @@ type GetTodosUseCase interface {
 // getTodosUseCase is the implementation of the GetTodosUseCase interface.
 type getTodosUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      application.TransactionManager
+	txManager      uow.TransactionManager
 }
 
 // NewGetTodosUseCase creates a new GetTodosUseCase.
@@ -28,7 +28,7 @@ func NewGetTodosUseCase(i *do.Injector) (GetTodosUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionManager](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}

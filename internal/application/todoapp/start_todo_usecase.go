@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/iktakahiro/oniongo/internal/application"
+	"github.com/iktakahiro/oniongo/internal/application/uow"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 	"github.com/samber/do"
 )
@@ -21,7 +21,7 @@ type StartTodoUseCase interface {
 // startTodoUseCase is the implementation of the StartTodoUseCase interface.
 type startTodoUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      application.TransactionManager
+	txManager      uow.TransactionManager
 }
 
 // NewStartTodoUseCase creates a new StartTodoUseCase.
@@ -30,7 +30,7 @@ func NewStartTodoUseCase(i *do.Injector) (StartTodoUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionManager](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}

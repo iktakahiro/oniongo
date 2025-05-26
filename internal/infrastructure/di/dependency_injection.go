@@ -1,8 +1,8 @@
 package di
 
 import (
-	todoapp "github.com/iktakahiro/oniongo/internal/application/todo"
-	todorepo "github.com/iktakahiro/oniongo/internal/infrastructure/ent/repository/todo"
+	"github.com/iktakahiro/oniongo/internal/application/todoapp"
+	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/repository/todorepo"
 	"github.com/samber/do"
 )
 

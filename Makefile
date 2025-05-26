@@ -5,6 +5,7 @@ ENT_DIR := internal/infrastructure/psql
 .PHONY: install
 install: 
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.6
+	go install github.com/vektra/mockery/v3@v3.2.5
 
 
 .PHONY: fmt

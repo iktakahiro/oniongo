@@ -1,0 +1,24 @@
+all: false
+filename: mocks.go
+force-file-write: true
+formatter: goimports
+log-level: info
+structname: "{{.Mock}}{{.InterfaceName}}"
+pkgname: "mock_{{.SrcPackageName}}"
+recursive: false
+require-template-schema-exists: true
+template: testify
+template-schema: "{{.Template}}.schema.json"
+packages:
+  github.com/iktakahiro/oniongo/internal/domain/todo:
+    config:
+      all: true
+      dir: ./internal/mocks/domain/mock_todo
+  github.com/iktakahiro/oniongo/internal/application/uow:
+    config:
+      all: true
+      dir: ./internal/mocks/application/mock_uow
+  github.com/iktakahiro/oniongo/internal/application/todoapp:
+    config:
+      all: true
+      dir: ./internal/mocks/application/mock_todoapp

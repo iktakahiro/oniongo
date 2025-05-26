@@ -1,4 +1,5 @@
-package application
+// Package uow provides a interface as Unit of Work pattern.
+package uow
 
 import "context"
 
