@@ -1,7 +1,6 @@
 
 # Directory variables
 ENT_DIR := internal/infrastructure/psql
-GOLANGCI_LINT_PATH := ~/.local/share/mise/installs/golangci-lint/2.1.6/golangci-lint-2.1.6-darwin-arm64/golangci-lint
 
 .PHONY: install
 install: 
