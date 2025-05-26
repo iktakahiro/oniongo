@@ -30,7 +30,10 @@ func NewTodoServiceHandler(i *do.Injector) (v1connect.TodoServiceHandler, error)
 	if err != nil {
 		return nil, err
 	}
-	updateHandler := newUpdateTodoHandler(i)
+	updateHandler, err := newUpdateTodoHandler(i)
+	if err != nil {
+		return nil, err
+	}
 	startHandler, err := newStartTodoHandler(i)
 	if err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package todohandler
 
 import (
 	"context"
+	"fmt"
 
 	"connectrpc.com/connect"
 	"github.com/iktakahiro/oniongo/internal/application/todoapp"
@@ -14,9 +15,12 @@ type updateTodoHandler struct {
 	useCase todoapp.UpdateTodoUseCase
 }
 
-func newUpdateTodoHandler(i *do.Injector) *updateTodoHandler {
-	updateTodoUseCase := do.MustInvoke[todoapp.UpdateTodoUseCase](i)
-	return &updateTodoHandler{useCase: updateTodoUseCase}
+func newUpdateTodoHandler(i *do.Injector) (*updateTodoHandler, error) {
+	updateTodoUseCase, err := do.Invoke[todoapp.UpdateTodoUseCase](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke update todo use case: %w", err)
+	}
+	return &updateTodoHandler{useCase: updateTodoUseCase}, nil
 }
 
 func (h updateTodoHandler) UpdateTodo(
