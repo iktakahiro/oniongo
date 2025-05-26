@@ -1,4 +1,4 @@
-package todopsql
+package todorepo
 
 import (
 	"context"
@@ -8,14 +8,15 @@ import (
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/db"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/todoschema"
+	"github.com/samber/do"
 )
 
 // todoPsqlRepository is the implementation of the TodoRepository interface.
 type todoRepository struct{}
 
 // NewTodoSqliteRepository creates a new TodoSqliteRepository.
-func NewTodoSqliteRepository() todo.TodoRepository {
-	return &todoRepository{}
+func NewTodoRepository(i *do.Injector) (todo.TodoRepository, error) {
+	return &todoRepository{}, nil
 }
 
 // Create creates the Todo.

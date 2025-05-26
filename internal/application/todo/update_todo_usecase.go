@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
+	"github.com/samber/do"
 )
 
 type UpdateTodoRequest struct {
@@ -26,14 +27,20 @@ type updateTodoUseCase struct {
 }
 
 // NewUpdateTodoUseCase creates a new UpdateTodoUseCase.
-func NewUpdateTodoUseCase(
-	todoRepository todo.TodoRepository,
-	transactionManager application.TransactionManager,
-) UpdateTodoUseCase {
+func NewUpdateTodoUseCase(i *do.Injector) (UpdateTodoUseCase, error) {
+	todoRepository, err := do.Invoke[todo.TodoRepository](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
+	}
+	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
+	}
+
 	return &updateTodoUseCase{
 		todoRepository: todoRepository,
 		txManager:      transactionManager,
-	}
+	}, nil
 }
 
 // Execute updates a Todo by its ID.

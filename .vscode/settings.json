@@ -13,6 +13,7 @@
 		"staticcheck",
 		"todoapp",
 		"todopsql",
+		"todorepo",
 		"todoschema"
 	],
 	"go.lintTool": "golangci-lint",

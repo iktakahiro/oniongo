@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
+	"github.com/samber/do"
 )
 
 type DeleteTodoRequest struct {
@@ -24,14 +25,20 @@ type deleteTodoUseCase struct {
 }
 
 // NewDeleteTodoUseCase creates a new DeleteTodoUseCase.
-func NewDeleteTodoUseCase(
-	todoRepository todo.TodoRepository,
-	transactionManager application.TransactionManager,
-) DeleteTodoUseCase {
+func NewDeleteTodoUseCase(i *do.Injector) (DeleteTodoUseCase, error) {
+	todoRepository, err := do.Invoke[todo.TodoRepository](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
+	}
+	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
+	}
+
 	return &deleteTodoUseCase{
 		todoRepository: todoRepository,
 		txManager:      transactionManager,
-	}
+	}, nil
 }
 
 // Execute deletes a Todo by its ID.

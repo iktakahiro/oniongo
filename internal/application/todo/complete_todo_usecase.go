@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
+	"github.com/samber/do"
 )
 
 type CompleteTodoRequest struct {
@@ -24,14 +25,20 @@ type completeTodoUseCase struct {
 }
 
 // NewCompleteTodoUseCase creates a new CompleteTodoUseCase.
-func NewCompleteTodoUseCase(
-	todoRepository todo.TodoRepository,
-	transactionManager application.TransactionManager,
-) CompleteTodoUseCase {
+func NewCompleteTodoUseCase(i *do.Injector) (CompleteTodoUseCase, error) {
+	todoRepository, err := do.Invoke[todo.TodoRepository](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
+	}
+	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
+	}
+
 	return &completeTodoUseCase{
 		todoRepository: todoRepository,
 		txManager:      transactionManager,
-	}
+	}, nil
 }
 
 // Execute completes a Todo by changing its status to completed.

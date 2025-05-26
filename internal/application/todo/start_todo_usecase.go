@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
+	"github.com/samber/do"
 )
 
 type StartTodoRequest struct {
@@ -24,14 +25,20 @@ type startTodoUseCase struct {
 }
 
 // NewStartTodoUseCase creates a new StartTodoUseCase.
-func NewStartTodoUseCase(
-	todoRepository todo.TodoRepository,
-	transactionManager application.TransactionManager,
-) StartTodoUseCase {
+func NewStartTodoUseCase(i *do.Injector) (StartTodoUseCase, error) {
+	todoRepository, err := do.Invoke[todo.TodoRepository](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
+	}
+	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
+	}
+
 	return &startTodoUseCase{
 		todoRepository: todoRepository,
 		txManager:      transactionManager,
-	}
+	}, nil
 }
 
 // Execute starts a Todo by changing its status to in progress.

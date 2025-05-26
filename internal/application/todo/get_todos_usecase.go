@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
+	"github.com/samber/do"
 )
 
 type GetTodosRequest struct{}
@@ -22,14 +23,20 @@ type getTodosUseCase struct {
 }
 
 // NewGetTodosUseCase creates a new GetTodosUseCase.
-func NewGetTodosUseCase(
-	todoRepository todo.TodoRepository,
-	transactionManager application.TransactionManager,
-) GetTodosUseCase {
+func NewGetTodosUseCase(i *do.Injector) (GetTodosUseCase, error) {
+	todoRepository, err := do.Invoke[todo.TodoRepository](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
+	}
+	transactionManager, err := do.Invoke[application.TransactionManager](i)
+	if err != nil {
+		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
+	}
+
 	return &getTodosUseCase{
 		todoRepository: todoRepository,
 		txManager:      transactionManager,
-	}
+	}, nil
 }
 
 // Execute finds all todos.
