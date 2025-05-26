@@ -43,20 +43,20 @@ func NewCompleteTodoUseCase(i *do.Injector) (CompleteTodoUseCase, error) {
 
 // Execute completes a Todo by changing its status to completed.
 func (u *completeTodoUseCase) Execute(ctx context.Context, req CompleteTodoRequest) error {
-	todo, err := u.todoRepository.FindByID(ctx, req.ID)
-	if err != nil {
-		return fmt.Errorf("failed to find todo: %w", err)
-	}
+	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		todo, err := u.todoRepository.FindByID(ctx, req.ID)
+		if err != nil {
+			return fmt.Errorf("failed to find todo: %w", err)
+		}
 
-	// Check if the todo is already completed
-	if todo.IsCompleted() {
-		return fmt.Errorf("todo is already completed")
-	}
+		if todo.IsCompleted() {
+			return fmt.Errorf("todo is already completed")
+		}
 
-	if err := todo.Complete(); err != nil {
-		return fmt.Errorf("failed to complete todo: %w", err)
-	}
-	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		if err := todo.Complete(); err != nil {
+			return fmt.Errorf("failed to complete todo: %w", err)
+		}
+
 		if err := u.todoRepository.Update(ctx, todo); err != nil {
 			return fmt.Errorf("failed to update todo: %w", err)
 		}

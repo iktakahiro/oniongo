@@ -45,17 +45,18 @@ func NewUpdateTodoUseCase(i *do.Injector) (UpdateTodoUseCase, error) {
 
 // Execute updates a Todo by its ID.
 func (u *updateTodoUseCase) Execute(ctx context.Context, req UpdateTodoRequest) error {
-	todo, err := u.todoRepository.FindByID(ctx, req.ID)
-	if err != nil {
-		return fmt.Errorf("failed to find todo: %w", err)
-	}
-	if err := todo.SetTitle(req.Title); err != nil {
-		return fmt.Errorf("failed to set title: %w", err)
-	}
-	if err := todo.SetBody(req.Body); err != nil {
-		return fmt.Errorf("failed to set body: %w", err)
-	}
-	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		todo, err := u.todoRepository.FindByID(ctx, req.ID)
+		if err != nil {
+			return fmt.Errorf("failed to find todo: %w", err)
+		}
+		if err := todo.SetTitle(req.Title); err != nil {
+			return fmt.Errorf("failed to set title: %w", err)
+		}
+		if err := todo.SetBody(req.Body); err != nil {
+			return fmt.Errorf("failed to set body: %w", err)
+		}
+
 		if err := u.todoRepository.Update(ctx, todo); err != nil {
 			return fmt.Errorf("failed to update todo: %w", err)
 		}

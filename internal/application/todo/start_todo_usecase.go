@@ -43,14 +43,16 @@ func NewStartTodoUseCase(i *do.Injector) (StartTodoUseCase, error) {
 
 // Execute starts a Todo by changing its status to in progress.
 func (u *startTodoUseCase) Execute(ctx context.Context, req StartTodoRequest) error {
-	todo, err := u.todoRepository.FindByID(ctx, req.ID)
-	if err != nil {
-		return fmt.Errorf("failed to find todo: %w", err)
-	}
-	if err := todo.Start(); err != nil {
-		return fmt.Errorf("failed to start todo: %w", err)
-	}
-	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		todo, err := u.todoRepository.FindByID(ctx, req.ID)
+		if err != nil {
+			return fmt.Errorf("failed to find todo: %w", err)
+		}
+
+		if err := todo.Start(); err != nil {
+			return fmt.Errorf("failed to start todo: %w", err)
+		}
+
 		if err := u.todoRepository.Update(ctx, todo); err != nil {
 			return fmt.Errorf("failed to update todo: %w", err)
 		}
