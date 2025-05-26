@@ -45,6 +45,14 @@ func (m entTransactionManager) RunInTx(
 		}
 	}()
 
+	// set the transaction to the context
+	// this is used to get the transaction in the repository
+	// e.g.
+	//   tx, _ := GetTx(ctx)
+	//   tx.Create(ctx, &entgen.Todo{
+	// 	  Title: "test",
+	// 	  Body:  "test",
+	//   })
 	ctx = context.WithValue(ctx, TxKey, tx)
 
 	if err := fn(ctx); err != nil {
