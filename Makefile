@@ -5,6 +5,10 @@ ENT_DIR := internal/infrastructure/ent
 install: 
 	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.6
 	go install github.com/vektra/mockery/v3@v3.2.5
+	go install github.com/bufbuild/buf/cmd/buf@latest
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
+
 
 
 .PHONY: fmt

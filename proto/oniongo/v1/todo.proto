@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package oniongo.v1;
+
+import "buf/validate/validate.proto";
+
+// TodoStatus represents the status of a todo item
+enum TodoStatus {
+  TODO_STATUS_UNSPECIFIED = 0;
+  TODO_STATUS_NOT_STARTED = 1;
+  TODO_STATUS_IN_PROGRESS = 2;
+  TODO_STATUS_COMPLETED = 3;
+}
+
+// Todo represents a todo item
+message Todo {
+  string id = 1;
+  string title = 2;
+  string body = 3;
+  TodoStatus status = 4;
+  int64 created_at = 5;
+  int64 updated_at = 6;
+  optional int64 completed_at = 7;
+}
+
+// Request and Response messages for TodoService
+
+message CreateTodoRequest {
+  string title = 1 [(buf.validate.field).string.min_len = 1];
+  optional string body = 2;
+}
+
+message CreateTodoResponse {}
+
+message GetTodoRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message GetTodoResponse {
+  Todo todo = 1;
+}
+
+message GetTodosRequest {}
+
+message GetTodosResponse {
+  repeated Todo todos = 1;
+}
+
+message UpdateTodoRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string title = 2 [(buf.validate.field).string.min_len = 1];
+  optional string body = 3;
+}
+
+message UpdateTodoResponse {}
+
+message StartTodoRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message StartTodoResponse {}
+
+message CompleteTodoRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message CompleteTodoResponse {}
+
+message DeleteTodoRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+
+message DeleteTodoResponse {}
+
+// TodoService provides all todo-related operations
+service TodoService {
+  // CreateTodo creates a new todo item
+  rpc CreateTodo(CreateTodoRequest) returns (CreateTodoResponse);
+
+  // GetTodo retrieves a todo item by its ID
+  rpc GetTodo(GetTodoRequest) returns (GetTodoResponse);
+
+  // GetTodos retrieves all todo items
+  rpc GetTodos(GetTodosRequest) returns (GetTodosResponse);
+
+  // UpdateTodo updates an existing todo item
+  rpc UpdateTodo(UpdateTodoRequest) returns (UpdateTodoResponse);
+
+  // StartTodo changes the todo status to in progress
+  rpc StartTodo(StartTodoRequest) returns (StartTodoResponse);
+
+  // CompleteTodo changes the todo status to completed
+  rpc CompleteTodo(CompleteTodoRequest) returns (CompleteTodoResponse);
+
+  // DeleteTodo deletes a todo item
+  rpc DeleteTodo(DeleteTodoRequest) returns (DeleteTodoResponse);
+}
