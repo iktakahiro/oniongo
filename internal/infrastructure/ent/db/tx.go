@@ -14,16 +14,16 @@ const (
 	TxKey key = iota
 )
 
-// entTransactionManager is the implementation of the TransactionManager interface.
-type entTransactionManager struct{}
+// entTransactionRunner is the implementation of the TransactionRunner interface.
+type entTransactionRunner struct{}
 
-// NewEntTransactionManager creates a new ent transaction manager.
-func NewEntTransactionManager() uow.TransactionManager {
-	return &entTransactionManager{}
+// NewEntTransactionRunner creates a new ent transaction runner.
+func NewEntTransactionRunner() uow.TransactionRunner {
+	return &entTransactionRunner{}
 }
 
 // RunInTx runs a function in a transaction.
-func (m entTransactionManager) RunInTx(
+func (r entTransactionRunner) RunInTx(
 	ctx context.Context,
 	fn func(ctx context.Context) error,
 ) error {

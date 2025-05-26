@@ -29,10 +29,10 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 		)
 
 		mockRepo := mock_todo.NewMockTodoRepository(t)
-		mockTxManager := mock_uow.NewMockTransactionManager(t)
+		mockTxRunner := mock_uow.NewMockTransactionRunner(t)
 
 		// Expect repository FindByID to be called within transaction
-		mockTxManager.EXPECT().RunInTx(ctx, mock.AnythingOfType("func(context.Context) error")).
+		mockTxRunner.EXPECT().RunInTx(ctx, mock.AnythingOfType("func(context.Context) error")).
 			RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 				// Repository is called within transaction
 				mockRepo.EXPECT().FindByID(ctx, todoID).Return(expectedTodo, nil)
@@ -41,7 +41,7 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 
 		useCase := &getTodoUseCase{
 			todoRepository: mockRepo,
-			txManager:      mockTxManager,
+			txRunner:       mockTxRunner,
 		}
 
 		req := GetTodoRequest{ID: todoID}
@@ -61,10 +61,10 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 		repoError := errors.New("repository error")
 
 		mockRepo := mock_todo.NewMockTodoRepository(t)
-		mockTxManager := mock_uow.NewMockTransactionManager(t)
+		mockTxRunner := mock_uow.NewMockTransactionRunner(t)
 
 		// Repository error occurs within transaction
-		mockTxManager.EXPECT().RunInTx(ctx, mock.AnythingOfType("func(context.Context) error")).
+		mockTxRunner.EXPECT().RunInTx(ctx, mock.AnythingOfType("func(context.Context) error")).
 			RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
 				mockRepo.EXPECT().FindByID(ctx, todoID).Return(nil, repoError)
 				return fn(ctx)
@@ -72,7 +72,7 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 
 		useCase := &getTodoUseCase{
 			todoRepository: mockRepo,
-			txManager:      mockTxManager,
+			txRunner:       mockTxRunner,
 		}
 
 		req := GetTodoRequest{ID: todoID}
@@ -93,15 +93,15 @@ func TestGetTodoUseCase_Execute(t *testing.T) {
 		txError := errors.New("transaction error")
 
 		mockRepo := mock_todo.NewMockTodoRepository(t)
-		mockTxManager := mock_uow.NewMockTransactionManager(t)
+		mockTxRunner := mock_uow.NewMockTransactionRunner(t)
 
 		// Transaction itself fails
-		mockTxManager.EXPECT().RunInTx(ctx, mock.AnythingOfType("func(context.Context) error")).
+		mockTxRunner.EXPECT().RunInTx(ctx, mock.AnythingOfType("func(context.Context) error")).
 			Return(txError)
 
 		useCase := &getTodoUseCase{
 			todoRepository: mockRepo,
-			txManager:      mockTxManager,
+			txRunner:       mockTxRunner,
 		}
 
 		req := GetTodoRequest{ID: todoID}

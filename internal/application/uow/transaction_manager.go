@@ -3,7 +3,7 @@ package uow
 
 import "context"
 
-// TransactionManager is the interface for the transaction manager.
-type TransactionManager interface {
+// TransactionRunner is the interface for running operations within a transaction.
+type TransactionRunner interface {
 	RunInTx(ctx context.Context, fn func(ctx context.Context) error) error
 }

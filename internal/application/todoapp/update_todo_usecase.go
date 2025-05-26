@@ -23,7 +23,7 @@ type UpdateTodoUseCase interface {
 // updateTodoUseCase is the implementation of the UpdateTodoUseCase interface.
 type updateTodoUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      uow.TransactionManager
+	txRunner       uow.TransactionRunner
 }
 
 // NewUpdateTodoUseCase creates a new UpdateTodoUseCase.
@@ -32,20 +32,20 @@ func NewUpdateTodoUseCase(i *do.Injector) (UpdateTodoUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[uow.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionRunner](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}
 
 	return &updateTodoUseCase{
 		todoRepository: todoRepository,
-		txManager:      transactionManager,
+		txRunner:       transactionManager,
 	}, nil
 }
 
 // Execute updates a Todo by its ID.
 func (u *updateTodoUseCase) Execute(ctx context.Context, req UpdateTodoRequest) error {
-	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
 		todo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
 			return fmt.Errorf("failed to find todo: %w", err)

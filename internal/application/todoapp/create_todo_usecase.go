@@ -23,7 +23,7 @@ type CreateTodoUseCase interface {
 // createTodoUseCase is the implementation of the CreateTodoUseCase interface.
 type createTodoUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      uow.TransactionManager
+	txRunner       uow.TransactionRunner
 }
 
 // NewCreateTodoUseCase creates a new CreateTodoUseCase.
@@ -32,14 +32,14 @@ func NewCreateTodoUseCase(i *do.Injector) (CreateTodoUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[uow.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionRunner](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}
 
 	return &createTodoUseCase{
 		todoRepository: todoRepository,
-		txManager:      transactionManager,
+		txRunner:       transactionManager,
 	}, nil
 }
 
@@ -49,7 +49,7 @@ func (u createTodoUseCase) Execute(ctx context.Context, req CreateTodoRequest) e
 	if err != nil {
 		return fmt.Errorf("failed to create todo: %w", err)
 	}
-	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err = u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
 		if err := u.todoRepository.Create(ctx, todo); err != nil {
 			return fmt.Errorf("failed to save todo: %w", err)
 		}

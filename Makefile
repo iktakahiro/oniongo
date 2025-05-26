@@ -40,3 +40,11 @@ migrate-diff:
 		--to "ent://$(ENT_DIR)/schema" \
 		--dev-url "sqlite://file?mode=memory&_fk=1"
 
+
+.PHONY: buf-generate
+buf-generate:
+	buf generate
+
+.PHONY: mockgen
+mockgen:
+	mockery

@@ -19,7 +19,7 @@ type GetTodosUseCase interface {
 // getTodosUseCase is the implementation of the GetTodosUseCase interface.
 type getTodosUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      uow.TransactionManager
+	txRunner       uow.TransactionRunner
 }
 
 // NewGetTodosUseCase creates a new GetTodosUseCase.
@@ -28,21 +28,21 @@ func NewGetTodosUseCase(i *do.Injector) (GetTodosUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[uow.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionRunner](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}
 
 	return &getTodosUseCase{
 		todoRepository: todoRepository,
-		txManager:      transactionManager,
+		txRunner:       transactionManager,
 	}, nil
 }
 
 // Execute finds all todos.
 func (u getTodosUseCase) Execute(ctx context.Context, req GetTodosRequest) ([]*todo.Todo, error) {
 	var result []*todo.Todo
-	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
 		todos, err := u.todoRepository.FindAll(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to find todos: %w", err)

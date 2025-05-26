@@ -21,7 +21,7 @@ type CompleteTodoUseCase interface {
 // completeTodoUseCase is the implementation of the CompleteTodoUseCase interface.
 type completeTodoUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      uow.TransactionManager
+	txRunner       uow.TransactionRunner
 }
 
 // NewCompleteTodoUseCase creates a new CompleteTodoUseCase.
@@ -30,20 +30,20 @@ func NewCompleteTodoUseCase(i *do.Injector) (CompleteTodoUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[uow.TransactionManager](i)
+	txRunner, err := do.Invoke[uow.TransactionRunner](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}
 
 	return &completeTodoUseCase{
 		todoRepository: todoRepository,
-		txManager:      transactionManager,
+		txRunner:       txRunner,
 	}, nil
 }
 
 // Execute completes a Todo by changing its status to completed.
 func (u *completeTodoUseCase) Execute(ctx context.Context, req CompleteTodoRequest) error {
-	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
 		todo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
 			return fmt.Errorf("failed to find todo: %w", err)

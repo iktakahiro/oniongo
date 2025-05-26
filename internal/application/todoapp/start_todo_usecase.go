@@ -21,7 +21,7 @@ type StartTodoUseCase interface {
 // startTodoUseCase is the implementation of the StartTodoUseCase interface.
 type startTodoUseCase struct {
 	todoRepository todo.TodoRepository
-	txManager      uow.TransactionManager
+	txRunner       uow.TransactionRunner
 }
 
 // NewStartTodoUseCase creates a new StartTodoUseCase.
@@ -30,20 +30,20 @@ func NewStartTodoUseCase(i *do.Injector) (StartTodoUseCase, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke todo repository: %w", err)
 	}
-	transactionManager, err := do.Invoke[uow.TransactionManager](i)
+	transactionManager, err := do.Invoke[uow.TransactionRunner](i)
 	if err != nil {
 		return nil, fmt.Errorf("failed to invoke transaction manager: %w", err)
 	}
 
 	return &startTodoUseCase{
 		todoRepository: todoRepository,
-		txManager:      transactionManager,
+		txRunner:       transactionManager,
 	}, nil
 }
 
 // Execute starts a Todo by changing its status to in progress.
 func (u *startTodoUseCase) Execute(ctx context.Context, req StartTodoRequest) error {
-	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
 		todo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
 			return fmt.Errorf("failed to find todo: %w", err)
