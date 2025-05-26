@@ -1,5 +1,12 @@
+
 # Directory variables
 ENT_DIR := internal/infrastructure/psql
+GOLANGCI_LINT_PATH := ~/.local/share/mise/installs/golangci-lint/2.1.6/golangci-lint-2.1.6-darwin-arm64/golangci-lint
+
+.PHONY: install
+install: 
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.1.6
+
 
 .PHONY: fmt
 fmt:
@@ -26,7 +33,7 @@ ent-new:
 .PHONY: migrate-diff
 migrate-diff:
 	atlas migrate diff $(name) \
-		--dir "file://internal/infrastructure/ent/migrations" \
+		--dir "file://internal/infrastructure/sqlite/migrations" \
 		--to "ent://internal/infrastructure/ent/schema" \
 		--dev-url "sqlite://file?mode=memory&_fk=1"
 

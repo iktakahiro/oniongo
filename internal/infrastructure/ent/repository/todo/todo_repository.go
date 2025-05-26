@@ -5,29 +5,28 @@ import (
 	"fmt"
 
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
+	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/db"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/todoschema"
 )
 
 // todoPsqlRepository is the implementation of the TodoRepository interface.
-type todoSqliteRepository struct {
-	client *entgen.Client
-}
+type todoRepository struct{}
 
-// NewTodoPsqlRepository creates a new TodoPsqlRepository.
+// NewTodoSqliteRepository creates a new TodoSqliteRepository.
 func NewTodoSqliteRepository() todo.TodoRepository {
-	client, err := entgen.Open("sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
-	if err != nil {
-		return nil
-	}
-
-	return &todoSqliteRepository{client: client}
+	return &todoRepository{}
 }
 
 // Create creates the Todo.
-func (r todoSqliteRepository) Create(ctx context.Context, todo *todo.Todo) error {
+func (r todoRepository) Create(ctx context.Context, todo *todo.Todo) error {
+	tx, err := db.GetTx(ctx)
+	if err != nil {
+		return err
+	}
+
 	status := todoschema.Status(todo.Status().String())
-	_, err := r.client.TodoSchema.Create().
+	_, err = tx.TodoSchema.Create().
 		SetTitle(todo.Title()).
 		SetBody(todo.Body()).
 		SetStatus(status).
@@ -39,8 +38,13 @@ func (r todoSqliteRepository) Create(ctx context.Context, todo *todo.Todo) error
 }
 
 // FindAll returns all Todos.
-func (r todoSqliteRepository) FindAll(ctx context.Context) (todos []*todo.Todo, err error) {
-	entities, err := r.client.TodoSchema.
+func (r todoRepository) FindAll(ctx context.Context) (todos []*todo.Todo, err error) {
+	tx, err := db.GetTx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entities, err := tx.TodoSchema.
 		Query().
 		Where(todoschema.DeletedAtIsNil()).
 		All(ctx)
@@ -59,11 +63,16 @@ func (r todoSqliteRepository) FindAll(ctx context.Context) (todos []*todo.Todo, 
 }
 
 // FindByID returns the Todo with the given ID.
-func (r todoSqliteRepository) FindByID(
+func (r todoRepository) FindByID(
 	ctx context.Context,
 	id todo.TodoID,
 ) (todo *todo.Todo, err error) {
-	entity, err := r.client.TodoSchema.Get(ctx, id.UUID())
+	tx, err := db.GetTx(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity, err := tx.TodoSchema.Get(ctx, id.UUID())
 	if err != nil {
 		return nil, fmt.Errorf("failed to find todo %v: %w", id, err)
 	}
@@ -72,8 +81,13 @@ func (r todoSqliteRepository) FindByID(
 }
 
 // Update updates the Todo with the given ID.
-func (r todoSqliteRepository) Update(ctx context.Context, todo *todo.Todo) (err error) {
-	_, err = r.client.TodoSchema.UpdateOneID(todo.ID().UUID()).
+func (r todoRepository) Update(ctx context.Context, todo *todo.Todo) (err error) {
+	tx, err := db.GetTx(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.TodoSchema.UpdateOneID(todo.ID().UUID()).
 		SetTitle(todo.Title()).
 		SetBody(todo.Body()).
 		Save(ctx)
@@ -84,8 +98,13 @@ func (r todoSqliteRepository) Update(ctx context.Context, todo *todo.Todo) (err 
 }
 
 // Delete deletes the Todo with the given ID.
-func (r todoSqliteRepository) Delete(ctx context.Context, id todo.TodoID) (err error) {
-	err = r.client.TodoSchema.DeleteOneID(id.UUID()).Exec(ctx)
+func (r todoRepository) Delete(ctx context.Context, id todo.TodoID) (err error) {
+	tx, err := db.GetTx(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = tx.TodoSchema.DeleteOneID(id.UUID()).Exec(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to delete todo %v: %w", id, err)
 	}

@@ -9,6 +9,7 @@
 		"govet",
 		"IDEQ",
 		"ineffassign",
+		"psql",
 		"staticcheck",
 		"todoapp",
 		"todopsql",

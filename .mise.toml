@@ -1,6 +1,5 @@
 [tools]
 go = "1.24"
-golangci-lint = "2.1"
 atlas = "0.33.0"
 
 [env]
