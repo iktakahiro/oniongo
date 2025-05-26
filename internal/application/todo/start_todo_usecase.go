@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 )
 
@@ -19,11 +20,18 @@ type StartTodoUseCase interface {
 // startTodoUseCase is the implementation of the StartTodoUseCase interface.
 type startTodoUseCase struct {
 	todoRepository todo.TodoRepository
+	txManager      application.TransactionManager
 }
 
 // NewStartTodoUseCase creates a new StartTodoUseCase.
-func NewStartTodoUseCase(todoRepository todo.TodoRepository) StartTodoUseCase {
-	return &startTodoUseCase{todoRepository: todoRepository}
+func NewStartTodoUseCase(
+	todoRepository todo.TodoRepository,
+	transactionManager application.TransactionManager,
+) StartTodoUseCase {
+	return &startTodoUseCase{
+		todoRepository: todoRepository,
+		txManager:      transactionManager,
+	}
 }
 
 // Execute starts a Todo by changing its status to in progress.
@@ -35,9 +43,14 @@ func (u *startTodoUseCase) Execute(ctx context.Context, req StartTodoRequest) er
 	if err := todo.Start(); err != nil {
 		return fmt.Errorf("failed to start todo: %w", err)
 	}
-	err = u.todoRepository.Update(ctx, todo)
+	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		if err := u.todoRepository.Update(ctx, todo); err != nil {
+			return fmt.Errorf("failed to update todo: %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to update todo: %w", err)
+		return fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return nil
 }

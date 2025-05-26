@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 )
 
@@ -19,11 +20,18 @@ type CompleteTodoUseCase interface {
 // completeTodoUseCase is the implementation of the CompleteTodoUseCase interface.
 type completeTodoUseCase struct {
 	todoRepository todo.TodoRepository
+	txManager      application.TransactionManager
 }
 
 // NewCompleteTodoUseCase creates a new CompleteTodoUseCase.
-func NewCompleteTodoUseCase(todoRepository todo.TodoRepository) CompleteTodoUseCase {
-	return &completeTodoUseCase{todoRepository: todoRepository}
+func NewCompleteTodoUseCase(
+	todoRepository todo.TodoRepository,
+	transactionManager application.TransactionManager,
+) CompleteTodoUseCase {
+	return &completeTodoUseCase{
+		todoRepository: todoRepository,
+		txManager:      transactionManager,
+	}
 }
 
 // Execute completes a Todo by changing its status to completed.
@@ -41,9 +49,14 @@ func (u *completeTodoUseCase) Execute(ctx context.Context, req CompleteTodoReque
 	if err := todo.Complete(); err != nil {
 		return fmt.Errorf("failed to complete todo: %w", err)
 	}
-	err = u.todoRepository.Update(ctx, todo)
+	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		if err := u.todoRepository.Update(ctx, todo); err != nil {
+			return fmt.Errorf("failed to update todo: %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to update todo: %w", err)
+		return fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return nil
 }

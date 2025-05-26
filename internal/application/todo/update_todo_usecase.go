@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 )
 
@@ -21,11 +22,18 @@ type UpdateTodoUseCase interface {
 // updateTodoUseCase is the implementation of the UpdateTodoUseCase interface.
 type updateTodoUseCase struct {
 	todoRepository todo.TodoRepository
+	txManager      application.TransactionManager
 }
 
 // NewUpdateTodoUseCase creates a new UpdateTodoUseCase.
-func NewUpdateTodoUseCase(todoRepository todo.TodoRepository) UpdateTodoUseCase {
-	return &updateTodoUseCase{todoRepository: todoRepository}
+func NewUpdateTodoUseCase(
+	todoRepository todo.TodoRepository,
+	transactionManager application.TransactionManager,
+) UpdateTodoUseCase {
+	return &updateTodoUseCase{
+		todoRepository: todoRepository,
+		txManager:      transactionManager,
+	}
 }
 
 // Execute updates a Todo by its ID.
@@ -40,9 +48,14 @@ func (u *updateTodoUseCase) Execute(ctx context.Context, req UpdateTodoRequest) 
 	if err := todo.SetBody(req.Body); err != nil {
 		return fmt.Errorf("failed to set body: %w", err)
 	}
-	err = u.todoRepository.Update(ctx, todo)
+	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		if err := u.todoRepository.Update(ctx, todo); err != nil {
+			return fmt.Errorf("failed to update todo: %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to update todo: %w", err)
+		return fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return nil
 }

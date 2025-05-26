@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 )
 
@@ -21,11 +22,18 @@ type CreateTodoUseCase interface {
 // createTodoUseCase is the implementation of the CreateTodoUseCase interface.
 type createTodoUseCase struct {
 	todoRepository todo.TodoRepository
+	txManager      application.TransactionManager
 }
 
 // NewCreateTodoUseCase creates a new CreateTodoUseCase.
-func NewCreateTodoUseCase(todoRepository todo.TodoRepository) CreateTodoUseCase {
-	return &createTodoUseCase{todoRepository: todoRepository}
+func NewCreateTodoUseCase(
+	todoRepository todo.TodoRepository,
+	transactionManager application.TransactionManager,
+) CreateTodoUseCase {
+	return &createTodoUseCase{
+		todoRepository: todoRepository,
+		txManager:      transactionManager,
+	}
 }
 
 // Execute creates a new Todo.
@@ -34,9 +42,14 @@ func (u createTodoUseCase) Execute(ctx context.Context, req CreateTodoRequest) e
 	if err != nil {
 		return fmt.Errorf("failed to create todo: %w", err)
 	}
-	err = u.todoRepository.Create(ctx, todo)
+	err = u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		if err := u.todoRepository.Create(ctx, todo); err != nil {
+			return fmt.Errorf("failed to save todo: %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to save todo: %w", err)
+		return fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/iktakahiro/oniongo/internal/application"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
 )
 
@@ -19,18 +20,30 @@ type DeleteTodoUseCase interface {
 // deleteTodoUseCase is the implementation of the DeleteTodoUseCase interface.
 type deleteTodoUseCase struct {
 	todoRepository todo.TodoRepository
+	txManager      application.TransactionManager
 }
 
 // NewDeleteTodoUseCase creates a new DeleteTodoUseCase.
-func NewDeleteTodoUseCase(todoRepository todo.TodoRepository) DeleteTodoUseCase {
-	return &deleteTodoUseCase{todoRepository: todoRepository}
+func NewDeleteTodoUseCase(
+	todoRepository todo.TodoRepository,
+	transactionManager application.TransactionManager,
+) DeleteTodoUseCase {
+	return &deleteTodoUseCase{
+		todoRepository: todoRepository,
+		txManager:      transactionManager,
+	}
 }
 
 // Execute deletes a Todo by its ID.
 func (u deleteTodoUseCase) Execute(ctx context.Context, req DeleteTodoRequest) error {
-	err := u.todoRepository.Delete(ctx, req.ID)
+	err := u.txManager.RunInTx(ctx, func(ctx context.Context) error {
+		if err := u.todoRepository.Delete(ctx, req.ID); err != nil {
+			return fmt.Errorf("failed to delete todo: %w", err)
+		}
+		return nil
+	})
 	if err != nil {
-		return fmt.Errorf("failed to delete todo: %w", err)
+		return fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return nil
 }
