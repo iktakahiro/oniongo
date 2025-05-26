@@ -14,12 +14,15 @@ const (
 	TxKey key = iota
 )
 
+// entTransactionManager is the implementation of the TransactionManager interface.
 type entTransactionManager struct{}
 
+// NewEntTransactionManager creates a new ent transaction manager.
 func NewEntTransactionManager() application.TransactionManager {
 	return &entTransactionManager{}
 }
 
+// RunInTx runs a function in a transaction.
 func (m entTransactionManager) RunInTx(
 	ctx context.Context,
 	fn func(ctx context.Context) error,
@@ -52,6 +55,7 @@ func (m entTransactionManager) RunInTx(
 	return tx.Commit()
 }
 
+// GetTx returns the transaction from the context.
 func GetTx(ctx context.Context) (*entgen.Tx, error) {
 	tx, ok := ctx.Value(TxKey).(*entgen.Tx)
 	if !ok {
