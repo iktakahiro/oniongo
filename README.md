@@ -2,6 +2,7 @@
 
 [![Go Version](https://img.shields.io/badge/go-1.24.3-blue.svg)](https://golang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/iktakahiro/oniongo)
 
 English | [日本語](README.ja_JP.md)
 
