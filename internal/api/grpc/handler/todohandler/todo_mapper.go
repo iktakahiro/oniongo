@@ -39,20 +39,6 @@ func domainStatusToProtoStatus(domainStatus todo.TodoStatus) pb.TodoStatus {
 	}
 }
 
-// protoStatusToDomainStatus converts a protobuf TodoStatus to a domain TodoStatus
-func protoStatusToDomainStatus(protoStatus pb.TodoStatus) todo.TodoStatus {
-	switch protoStatus {
-	case pb.TodoStatus_TODO_STATUS_NOT_STARTED:
-		return todo.TodoStatusNotStarted
-	case pb.TodoStatus_TODO_STATUS_IN_PROGRESS:
-		return todo.TodoStatusInProgress
-	case pb.TodoStatus_TODO_STATUS_COMPLETED:
-		return todo.TodoStatusCompleted
-	default:
-		return todo.TodoStatusNotStarted
-	}
-}
-
 // parseUUIDFromString parses a UUID string and returns a TodoID
 func parseUUIDFromString(idStr string) (todo.TodoID, error) {
 	id, err := uuid.Parse(idStr)
