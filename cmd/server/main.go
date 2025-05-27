@@ -15,6 +15,7 @@ import (
 	"connectrpc.com/connect"
 	"connectrpc.com/grpcreflect"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/di"
+	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/db"
 	v1connect "github.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen/oniongo/v1/oniongov1connect"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/grpc/interceptor"
 	"github.com/rs/cors"
@@ -24,6 +25,10 @@ import (
 )
 
 func main() {
+	if err := db.Migrate(); err != nil {
+		log.Fatalf("failed to migrate: %v", err)
+	}
+
 	injector := di.DependencyInjection()
 
 	// Get port from environment variable, default to 8080

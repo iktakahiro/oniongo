@@ -58,5 +58,5 @@ mockgen:
 	mockery
 
 .PHONY: server
-server: migrate-up
+server: 
 	go run cmd/server/main.go
