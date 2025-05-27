@@ -33,7 +33,6 @@ ent-new:
 		popd
 
 
-DB_DNS := "sqlite://db/dev.db?_fk=1"
 MIGRATION_PATH := "file://internal/infrastructure/sqlite/migrations"
 
 # make migrate-diff name=migration_name
@@ -42,13 +41,13 @@ migrate-diff:
 	atlas migrate diff $(name) \
 		--dir $(MIGRATION_PATH) \
 		--to "ent://$(ENT_DIR)/schema" \
-		--dev-url $(DB_DNS)
+		--dev-url "sqlite://file?mode=memory&_fk=1"
 
 .PHONY: migrate-up
 migrate-up:
 	atlas migrate apply \
 		--dir $(MIGRATION_PATH) \
-		--url $(DB_DNS)
+		--url "sqlite://db/dev.db?_fk=1"
 
 .PHONY: buf-generate
 buf-generate:
