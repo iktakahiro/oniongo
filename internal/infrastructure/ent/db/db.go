@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 var (
@@ -17,7 +18,7 @@ func GetClient() (*entgen.Client, error) {
 	clientOnce.Do(func() {
 		clientInstance, clientErr = entgen.Open(
 			"sqlite3",
-			"file:ent?mode=memory&cache=shared&_fk=1",
+			"file:db/dev.db?_fk=1",
 		)
 	})
 	return clientInstance, clientErr
