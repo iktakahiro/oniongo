@@ -57,3 +57,7 @@ buf-generate:
 .PHONY: mockgen
 mockgen:
 	mockery
+
+.PHONY: server
+server: migrate-up
+	go run cmd/server/main.go
