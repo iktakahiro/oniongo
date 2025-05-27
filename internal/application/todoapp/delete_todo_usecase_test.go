@@ -98,4 +98,4 @@ func TestDeleteTodoUseCase_Execute(t *testing.T) {
 		require.Error(t, err)
 		require.Contains(t, err.Error(), "failed to execute transaction")
 	})
-} 
+}

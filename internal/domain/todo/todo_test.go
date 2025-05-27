@@ -157,7 +157,15 @@ func TestReconstructTodoWithStatus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// When
-			todo := ReconstructTodoWithStatus(tt.id, tt.title, tt.body, tt.status, tt.createdAt, tt.updatedAt, tt.completedAt)
+			todo := ReconstructTodoWithStatus(
+				tt.id,
+				tt.title,
+				tt.body,
+				tt.status,
+				tt.createdAt,
+				tt.updatedAt,
+				tt.completedAt,
+			)
 
 			// Then
 			require.NotNil(t, todo)
@@ -207,7 +215,7 @@ func TestTodo_SetTitle(t *testing.T) {
 			if tt.expectError {
 				require.Error(t, err)
 				require.Equal(t, tt.errorMsg, err.Error())
-				require.Equal(t, "Original Title", todo.Title()) // Title should not change
+				require.Equal(t, "Original Title", todo.Title())      // Title should not change
 				require.Equal(t, originalUpdatedAt, todo.UpdatedAt()) // UpdatedAt should not change
 			} else {
 				require.NoError(t, err)
@@ -254,26 +262,26 @@ func TestTodo_SetBody(t *testing.T) {
 
 func TestTodo_Start(t *testing.T) {
 	tests := []struct {
-		name         string
+		name          string
 		initialStatus TodoStatus
-		expectError  bool
-		errorMsg     string
+		expectError   bool
+		errorMsg      string
 	}{
 		{
-			name:         "start not started todo",
+			name:          "start not started todo",
 			initialStatus: TodoStatusNotStarted,
-			expectError:  false,
+			expectError:   false,
 		},
 		{
-			name:         "start in progress todo",
+			name:          "start in progress todo",
 			initialStatus: TodoStatusInProgress,
-			expectError:  false,
+			expectError:   false,
 		},
 		{
-			name:         "start completed todo",
+			name:          "start completed todo",
 			initialStatus: TodoStatusCompleted,
-			expectError:  true,
-			errorMsg:     "cannot start a completed todo",
+			expectError:   true,
+			errorMsg:      "cannot start a completed todo",
 		},
 	}
 
@@ -282,7 +290,7 @@ func TestTodo_Start(t *testing.T) {
 			// Given
 			todo, err := NewTodo("Test Todo", "Test Body")
 			require.NoError(t, err)
-			
+
 			// Set initial status
 			if tt.initialStatus == TodoStatusCompleted {
 				err = todo.Complete()
@@ -291,7 +299,7 @@ func TestTodo_Start(t *testing.T) {
 				err = todo.Start()
 				require.NoError(t, err)
 			}
-			
+
 			originalUpdatedAt := todo.UpdatedAt()
 			time.Sleep(1 * time.Millisecond) // Ensure time difference
 
@@ -314,26 +322,26 @@ func TestTodo_Start(t *testing.T) {
 
 func TestTodo_Complete(t *testing.T) {
 	tests := []struct {
-		name         string
+		name          string
 		initialStatus TodoStatus
-		expectError  bool
-		errorMsg     string
+		expectError   bool
+		errorMsg      string
 	}{
 		{
-			name:         "complete not started todo",
+			name:          "complete not started todo",
 			initialStatus: TodoStatusNotStarted,
-			expectError:  false,
+			expectError:   false,
 		},
 		{
-			name:         "complete in progress todo",
+			name:          "complete in progress todo",
 			initialStatus: TodoStatusInProgress,
-			expectError:  false,
+			expectError:   false,
 		},
 		{
-			name:         "complete already completed todo",
+			name:          "complete already completed todo",
 			initialStatus: TodoStatusCompleted,
-			expectError:  true,
-			errorMsg:     "todo is already completed",
+			expectError:   true,
+			errorMsg:      "todo is already completed",
 		},
 	}
 
@@ -342,7 +350,7 @@ func TestTodo_Complete(t *testing.T) {
 			// Given
 			todo, err := NewTodo("Test Todo", "Test Body")
 			require.NoError(t, err)
-			
+
 			// Set initial status
 			if tt.initialStatus == TodoStatusInProgress {
 				err = todo.Start()
@@ -351,7 +359,7 @@ func TestTodo_Complete(t *testing.T) {
 				err = todo.Complete()
 				require.NoError(t, err)
 			}
-			
+
 			originalUpdatedAt := todo.UpdatedAt()
 			originalCompletedAt := todo.CompletedAt()
 			time.Sleep(1 * time.Millisecond) // Ensure time difference
@@ -404,7 +412,7 @@ func TestTodo_IsInProgress(t *testing.T) {
 			// Given
 			todo, err := NewTodo("Test Todo", "Test Body")
 			require.NoError(t, err)
-			
+
 			// Set status
 			switch tt.status {
 			case TodoStatusInProgress:
@@ -449,7 +457,7 @@ func TestTodo_IsCompleted(t *testing.T) {
 			// Given
 			todo, err := NewTodo("Test Todo", "Test Body")
 			require.NoError(t, err)
-			
+
 			// Set status
 			switch tt.status {
 			case TodoStatusInProgress:

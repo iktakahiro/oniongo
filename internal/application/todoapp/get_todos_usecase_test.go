@@ -148,4 +148,4 @@ func TestGetTodosUseCase_Execute(t *testing.T) {
 		require.Nil(t, result)
 		require.Contains(t, err.Error(), "failed to execute transaction")
 	})
-} 
+}
