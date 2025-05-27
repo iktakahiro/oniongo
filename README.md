@@ -62,11 +62,10 @@ internal/
 │   └── uow/         # Unit of Work pattern
 ├── infrastructure/  # Infrastructure Layer (Repository Implementations, External Services)
 │   ├── ent/         # Ent ORM (Schema, Generated Code, Repository)
-│   ├── grpc/        # gRPC generated code
 │   ├── sqlite/      # Database migrations
 │   └── di/          # Dependency injection setup
-└── api/             # Presentation Layer (gRPC Handlers)
-    └── grpc/
+└── api/             # Presentation Layer (gRPC Handlers, Generated Code)
+    └── grpc/        # gRPC handlers and generated protobuf code
 ```
 
 ### Domain Layer
@@ -160,7 +159,8 @@ The infrastructure layer contains implementations of interfaces defined in the d
 
 1. **Repository Implementations**: Concrete implementations using Ent ORM
 2. **Database Schema**: Ent schema definitions
-3. **External Service Integrations**: gRPC, HTTP clients, etc.
+3. **External Service Integrations**: HTTP clients, third-party APIs, etc.
+4. **Dependency Injection**: Service container configuration
 
 #### 1. Repository Implementation
 
@@ -274,9 +274,10 @@ type TransactionRunner interface {
 The presentation layer handles gRPC requests and responses. It includes:
 
 1. **gRPC Handlers**: Convert between protobuf messages and domain objects
-2. **Protocol Buffer Definitions**: API contract definitions
+2. **Generated Code**: Protocol buffer generated code and Connect-Go handlers
 3. **Input Validation**: Request validation using buf validate
 4. **Error Handling**: Convert domain errors to gRPC status codes
+5. **Middleware**: Cross-cutting concerns like logging and error handling
 
 #### 1. gRPC Handler
 
