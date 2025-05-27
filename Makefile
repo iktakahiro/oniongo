@@ -1,3 +1,4 @@
+ENT_DIR := internal/infrastructure/ent
 
 ENT_DIR := internal/infrastructure/ent
 
@@ -8,8 +9,6 @@ install:
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install connectrpc.com/connect/cmd/protoc-gen-connect-go@latest
-
-
 
 .PHONY: fmt
 fmt:
@@ -60,3 +59,7 @@ mockgen:
 .PHONY: server
 server: 
 	go run cmd/server/main.go
+
+.PHONY: test
+test:
+	go test -v ./...
