@@ -14,10 +14,10 @@ import (
 
 	"connectrpc.com/connect"
 	"connectrpc.com/grpcreflect"
+	"github.com/iktakahiro/oniongo/internal/api/grpc/middleware"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/di"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/db"
 	v1connect "github.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen/oniongo/v1/oniongov1connect"
-	"github.com/iktakahiro/oniongo/internal/infrastructure/grpc/interceptor"
 	"github.com/rs/cors"
 	"github.com/samber/do"
 	"golang.org/x/net/http2"
@@ -59,7 +59,7 @@ func main() {
 			connect.WithSendMaxBytes(4 * 1024 * 1024),
 			connect.WithReadMaxBytes(4 * 1024 * 1024),
 			connect.WithInterceptors(
-				interceptor.NewLoggingInterceptor(),
+				middleware.NewLoggingInterceptor(),
 			),
 		}...,
 	))
