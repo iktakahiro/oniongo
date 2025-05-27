@@ -8,7 +8,7 @@
 
 **注意**: このリポジトリは「GoアプリケーションでDDDアーキテクチャを実装する方法」を示すサンプルです。参考にする場合は、本番環境にデプロイする前に認証とセキュリティを実装してください！
 
-* 関連するPython実装: [dddpy](https://github.com/iktakahiro/dddpy)
+* Python実装版: [dddpy](https://github.com/iktakahiro/dddpy)
 
 ## 技術スタック
 

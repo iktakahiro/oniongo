@@ -8,7 +8,7 @@ English | [日本語](README.ja_JP.md)
 
 **NOTE**: This repository is an example to demonstrate "how to implement DDD architecture in a Go application." If you use this as a reference, ensure to implement authentication and security before deploying it to a real-world environment!
 
-* Related Python implementation: [dddpy](https://github.com/iktakahiro/dddpy)
+* Python implementation: [dddpy](https://github.com/iktakahiro/dddpy)
 
 ## Tech Stack
 
