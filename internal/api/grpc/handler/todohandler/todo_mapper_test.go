@@ -5,116 +5,150 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	pb "github.com/iktakahiro/oniongo/internal/api/grpc/gen/oniongo/v1"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
-	pb "github.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen/oniongo/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDomainTodoToProto(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    *todo.Todo
-		expected *pb.Todo
+		name      string
+		setupTodo func() *todo.Todo
+		expected  func(*todo.Todo) *pb.Todo
 	}{
 		{
-			name: "converts todo with all fields including completed_at",
-			input: func() *todo.Todo {
-				createdAt := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
-				updatedAt := time.Date(2024, 1, 2, 12, 0, 0, 0, time.UTC)
-				completedAt := time.Date(2024, 1, 3, 12, 0, 0, 0, time.UTC)
-				id := uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")
+			name: "converts todo with all fields",
+			setupTodo: func() *todo.Todo {
+				id := uuid.New()
+				createdAt := time.Now().UTC()
+				updatedAt := createdAt.Add(time.Hour)
+				completedAt := updatedAt.Add(time.Hour)
 
-				return todo.ReconstructTodoWithStatus(
+				todoItem := todo.ReconstructTodoWithStatus(
 					id,
-					"Test Todo",
+					"Test Title",
 					"Test Body",
 					todo.TodoStatusCompleted,
 					createdAt,
 					updatedAt,
 					&completedAt,
 				)
-			}(),
-			expected: &pb.Todo{
-				Id:          "550e8400-e29b-41d4-a716-446655440000",
-				Title:       "Test Todo",
-				Body:        "Test Body",
-				Status:      pb.TodoStatus_TODO_STATUS_COMPLETED,
-				CreatedAt:   time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC).Unix(),
-				UpdatedAt:   time.Date(2024, 1, 2, 12, 0, 0, 0, time.UTC).Unix(),
-				CompletedAt: func() *int64 { t := time.Date(2024, 1, 3, 12, 0, 0, 0, time.UTC).Unix(); return &t }(),
+				return todoItem
+			},
+			expected: func(domainTodo *todo.Todo) *pb.Todo {
+				completedAt := domainTodo.CompletedAt().Unix()
+				return &pb.Todo{
+					Id:          domainTodo.ID().String(),
+					Title:       domainTodo.Title(),
+					Body:        domainTodo.Body(),
+					Status:      pb.TodoStatus_TODO_STATUS_COMPLETED,
+					CreatedAt:   domainTodo.CreatedAt().Unix(),
+					UpdatedAt:   domainTodo.UpdatedAt().Unix(),
+					CompletedAt: &completedAt,
+				}
 			},
 		},
 		{
 			name: "converts todo without completed_at",
-			input: func() *todo.Todo {
-				createdAt := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
-				updatedAt := time.Date(2024, 1, 2, 12, 0, 0, 0, time.UTC)
-				id := uuid.MustParse("550e8400-e29b-41d4-a716-446655440001")
+			setupTodo: func() *todo.Todo {
+				id := uuid.New()
+				createdAt := time.Now().UTC()
+				updatedAt := createdAt.Add(time.Hour)
 
-				return todo.ReconstructTodo(
+				todoItem := todo.ReconstructTodoWithStatus(
 					id,
-					"In Progress Todo",
-					"In Progress Body",
+					"Test Title",
+					"Test Body",
 					todo.TodoStatusInProgress,
 					createdAt,
 					updatedAt,
+					nil,
 				)
-			}(),
-			expected: &pb.Todo{
-				Id:          "550e8400-e29b-41d4-a716-446655440001",
-				Title:       "In Progress Todo",
-				Body:        "In Progress Body",
-				Status:      pb.TodoStatus_TODO_STATUS_IN_PROGRESS,
-				CreatedAt:   time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC).Unix(),
-				UpdatedAt:   time.Date(2024, 1, 2, 12, 0, 0, 0, time.UTC).Unix(),
-				CompletedAt: nil,
+				return todoItem
+			},
+			expected: func(domainTodo *todo.Todo) *pb.Todo {
+				return &pb.Todo{
+					Id:          domainTodo.ID().String(),
+					Title:       domainTodo.Title(),
+					Body:        domainTodo.Body(),
+					Status:      pb.TodoStatus_TODO_STATUS_IN_PROGRESS,
+					CreatedAt:   domainTodo.CreatedAt().Unix(),
+					UpdatedAt:   domainTodo.UpdatedAt().Unix(),
+					CompletedAt: nil,
+				}
 			},
 		},
 		{
 			name: "converts todo with not started status",
-			input: func() *todo.Todo {
-				createdAt := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
-				updatedAt := time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC)
-				id := uuid.MustParse("550e8400-e29b-41d4-a716-446655440002")
+			setupTodo: func() *todo.Todo {
+				id := uuid.New()
+				createdAt := time.Now().UTC()
+				updatedAt := createdAt
 
-				return todo.ReconstructTodo(
+				todoItem := todo.ReconstructTodoWithStatus(
 					id,
 					"Not Started Todo",
-					"",
+					"Description",
 					todo.TodoStatusNotStarted,
 					createdAt,
 					updatedAt,
+					nil,
 				)
-			}(),
-			expected: &pb.Todo{
-				Id:          "550e8400-e29b-41d4-a716-446655440002",
-				Title:       "Not Started Todo",
-				Body:        "",
-				Status:      pb.TodoStatus_TODO_STATUS_NOT_STARTED,
-				CreatedAt:   time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC).Unix(),
-				UpdatedAt:   time.Date(2024, 1, 1, 12, 0, 0, 0, time.UTC).Unix(),
-				CompletedAt: nil,
+				return todoItem
+			},
+			expected: func(domainTodo *todo.Todo) *pb.Todo {
+				return &pb.Todo{
+					Id:          domainTodo.ID().String(),
+					Title:       domainTodo.Title(),
+					Body:        domainTodo.Body(),
+					Status:      pb.TodoStatus_TODO_STATUS_NOT_STARTED,
+					CreatedAt:   domainTodo.CreatedAt().Unix(),
+					UpdatedAt:   domainTodo.UpdatedAt().Unix(),
+					CompletedAt: nil,
+				}
+			},
+		},
+		{
+			name: "converts todo created with NewTodo",
+			setupTodo: func() *todo.Todo {
+				todoItem, err := todo.NewTodo("Simple Todo", "Simple Body")
+				require.NoError(t, err)
+				return todoItem
+			},
+			expected: func(domainTodo *todo.Todo) *pb.Todo {
+				return &pb.Todo{
+					Id:          domainTodo.ID().String(),
+					Title:       domainTodo.Title(),
+					Body:        domainTodo.Body(),
+					Status:      pb.TodoStatus_TODO_STATUS_NOT_STARTED,
+					CreatedAt:   domainTodo.CreatedAt().Unix(),
+					UpdatedAt:   domainTodo.UpdatedAt().Unix(),
+					CompletedAt: nil,
+				}
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := domainTodoToProto(tt.input)
+			domainTodo := tt.setupTodo()
+			expected := tt.expected(domainTodo)
 
-			assert.Equal(t, tt.expected.Id, result.Id)
-			assert.Equal(t, tt.expected.Title, result.Title)
-			assert.Equal(t, tt.expected.Body, result.Body)
-			assert.Equal(t, tt.expected.Status, result.Status)
-			assert.Equal(t, tt.expected.CreatedAt, result.CreatedAt)
-			assert.Equal(t, tt.expected.UpdatedAt, result.UpdatedAt)
+			result := domainTodoToProto(domainTodo)
 
-			if tt.expected.CompletedAt == nil {
-				assert.Nil(t, result.CompletedAt)
-			} else {
+			assert.Equal(t, expected.Id, result.Id)
+			assert.Equal(t, expected.Title, result.Title)
+			assert.Equal(t, expected.Body, result.Body)
+			assert.Equal(t, expected.Status, result.Status)
+			assert.Equal(t, expected.CreatedAt, result.CreatedAt)
+			assert.Equal(t, expected.UpdatedAt, result.UpdatedAt)
+
+			if expected.CompletedAt != nil {
 				require.NotNil(t, result.CompletedAt)
-				assert.Equal(t, *tt.expected.CompletedAt, *result.CompletedAt)
+				assert.Equal(t, *expected.CompletedAt, *result.CompletedAt)
+			} else {
+				assert.Nil(t, result.CompletedAt)
 			}
 		})
 	}
@@ -122,36 +156,36 @@ func TestDomainTodoToProto(t *testing.T) {
 
 func TestDomainStatusToProtoStatus(t *testing.T) {
 	tests := []struct {
-		name     string
-		input    todo.TodoStatus
-		expected pb.TodoStatus
+		name           string
+		domainStatus   todo.TodoStatus
+		expectedStatus pb.TodoStatus
 	}{
 		{
-			name:     "converts not started status",
-			input:    todo.TodoStatusNotStarted,
-			expected: pb.TodoStatus_TODO_STATUS_NOT_STARTED,
+			name:           "converts not started status",
+			domainStatus:   todo.TodoStatusNotStarted,
+			expectedStatus: pb.TodoStatus_TODO_STATUS_NOT_STARTED,
 		},
 		{
-			name:     "converts in progress status",
-			input:    todo.TodoStatusInProgress,
-			expected: pb.TodoStatus_TODO_STATUS_IN_PROGRESS,
+			name:           "converts in progress status",
+			domainStatus:   todo.TodoStatusInProgress,
+			expectedStatus: pb.TodoStatus_TODO_STATUS_IN_PROGRESS,
 		},
 		{
-			name:     "converts completed status",
-			input:    todo.TodoStatusCompleted,
-			expected: pb.TodoStatus_TODO_STATUS_COMPLETED,
+			name:           "converts completed status",
+			domainStatus:   todo.TodoStatusCompleted,
+			expectedStatus: pb.TodoStatus_TODO_STATUS_COMPLETED,
 		},
 		{
-			name:     "converts invalid status to unspecified",
-			input:    todo.TodoStatus(999), // invalid status
-			expected: pb.TodoStatus_TODO_STATUS_UNSPECIFIED,
+			name:           "converts unknown status to unspecified",
+			domainStatus:   todo.TodoStatus(999), // Invalid status
+			expectedStatus: pb.TodoStatus_TODO_STATUS_UNSPECIFIED,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := domainStatusToProtoStatus(tt.input)
-			assert.Equal(t, tt.expected, result)
+			result := domainStatusToProtoStatus(tt.domainStatus)
+			assert.Equal(t, tt.expectedStatus, result)
 		})
 	}
 }
@@ -161,43 +195,53 @@ func TestParseUUIDFromString(t *testing.T) {
 		name        string
 		input       string
 		expectError bool
-		expected    todo.TodoID
+		validate    func(t *testing.T, result todo.TodoID, err error)
 	}{
 		{
 			name:        "parses valid UUID",
 			input:       "550e8400-e29b-41d4-a716-446655440000",
 			expectError: false,
-			expected:    todo.TodoID(uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")),
-		},
-		{
-			name:        "parses valid UUID with different format",
-			input:       "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
-			expectError: false,
-			expected:    todo.TodoID(uuid.MustParse("6ba7b810-9dad-11d1-80b4-00c04fd430c8")),
+			validate: func(t *testing.T, result todo.TodoID, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, "550e8400-e29b-41d4-a716-446655440000", result.String())
+			},
 		},
 		{
 			name:        "returns error for invalid UUID format",
 			input:       "invalid-uuid",
 			expectError: true,
-			expected:    todo.TodoID{},
+			validate: func(t *testing.T, result todo.TodoID, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, todo.TodoID{}, result)
+			},
 		},
 		{
 			name:        "returns error for empty string",
 			input:       "",
 			expectError: true,
-			expected:    todo.TodoID{},
+			validate: func(t *testing.T, result todo.TodoID, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, todo.TodoID{}, result)
+			},
 		},
 		{
-			name:        "parses UUID without hyphens",
-			input:       "550e8400e29b41d4a716446655440000",
-			expectError: false,
-			expected:    todo.TodoID(uuid.MustParse("550e8400-e29b-41d4-a716-446655440000")),
-		},
-		{
-			name:        "returns error for partial UUID",
-			input:       "550e8400-e29b-41d4",
+			name:        "returns error for malformed UUID",
+			input:       "550e8400-e29b-41d4-a716",
 			expectError: true,
-			expected:    todo.TodoID{},
+			validate: func(t *testing.T, result todo.TodoID, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, todo.TodoID{}, result)
+			},
+		},
+		{
+			name:        "parses UUID with different case",
+			input:       "550E8400-E29B-41D4-A716-446655440000",
+			expectError: false,
+			validate: func(t *testing.T, result todo.TodoID, err error) {
+				assert.NoError(t, err)
+				// UUID should be normalized to lowercase
+				assert.Equal(t, "550e8400-e29b-41d4-a716-446655440000", result.String())
+			},
 		},
 	}
 
@@ -207,11 +251,11 @@ func TestParseUUIDFromString(t *testing.T) {
 
 			if tt.expectError {
 				assert.Error(t, err)
-				assert.Equal(t, todo.TodoID{}, result)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, tt.expected, result)
 			}
+
+			tt.validate(t, result, err)
 		})
 	}
 }

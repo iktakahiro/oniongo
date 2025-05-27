@@ -820,8 +820,8 @@ const file_oniongo_v1_todo_proto_rawDesc = "" +
 	"\tStartTodo\x12\x1c.oniongo.v1.StartTodoRequest\x1a\x1d.oniongo.v1.StartTodoResponse\x12Q\n" +
 	"\fCompleteTodo\x12\x1f.oniongo.v1.CompleteTodoRequest\x1a .oniongo.v1.CompleteTodoResponse\x12K\n" +
 	"\n" +
-	"DeleteTodo\x12\x1d.oniongo.v1.DeleteTodoRequest\x1a\x1e.oniongo.v1.DeleteTodoResponseB\xb9\x01\n" +
-	"\x0ecom.oniongo.v1B\tTodoProtoP\x01ZSgithub.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen/oniongo/v1;oniongov1\xa2\x02\x03OXX\xaa\x02\n" +
+	"DeleteTodo\x12\x1d.oniongo.v1.DeleteTodoRequest\x1a\x1e.oniongo.v1.DeleteTodoResponseB\xae\x01\n" +
+	"\x0ecom.oniongo.v1B\tTodoProtoP\x01ZHgithub.com/iktakahiro/oniongo/internal/api/grpc/gen/oniongo/v1;oniongov1\xa2\x02\x03OXX\xaa\x02\n" +
 	"Oniongo.V1\xca\x02\n" +
 	"Oniongo\\V1\xe2\x02\x16Oniongo\\V1\\GPBMetadata\xea\x02\vOniongo::V1b\x06proto3"
 

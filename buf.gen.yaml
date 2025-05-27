@@ -4,14 +4,14 @@ managed:
   enabled: true
   override:
     - file_option: go_package_prefix
-      value: github.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen
+      value: github.com/iktakahiro/oniongo/internal/api/grpc/gen
   disable:
     - file_option: go_package
       module: buf.build/bufbuild/protovalidate
 plugins:
   - local: protoc-gen-go
-    out: internal/infrastructure/grpc/gen
+    out: internal/api/grpc/gen
     opt: paths=source_relative
   - local: protoc-gen-connect-go
-    out: internal/infrastructure/grpc/gen
+    out: internal/api/grpc/gen
     opt: paths=source_relative

@@ -2,8 +2,8 @@ package todohandler
 
 import (
 	"github.com/google/uuid"
+	pb "github.com/iktakahiro/oniongo/internal/api/grpc/gen/oniongo/v1"
 	"github.com/iktakahiro/oniongo/internal/domain/todo"
-	pb "github.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen/oniongo/v1"
 )
 
 // domainTodoToProto converts a domain Todo to a protobuf Todo

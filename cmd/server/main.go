@@ -14,10 +14,10 @@ import (
 
 	"connectrpc.com/connect"
 	"connectrpc.com/grpcreflect"
+	v1connect "github.com/iktakahiro/oniongo/internal/api/grpc/gen/oniongo/v1/oniongov1connect"
 	"github.com/iktakahiro/oniongo/internal/api/grpc/middleware"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/di"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/db"
-	v1connect "github.com/iktakahiro/oniongo/internal/infrastructure/grpc/gen/oniongo/v1/oniongov1connect"
 	"github.com/rs/cors"
 	"github.com/samber/do"
 	"golang.org/x/net/http2"
