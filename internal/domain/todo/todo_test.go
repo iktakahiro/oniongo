@@ -10,29 +10,37 @@ import (
 
 func TestNewTodo(t *testing.T) {
 	tests := []struct {
-		name  string
-		title string
-		body  string
+		name        string
+		title       string
+		body        string
+		expectError bool
+		errorMsg    string
 	}{
 		{
-			name:  "valid todo with title and body",
-			title: "Test Todo",
-			body:  "This is a test todo",
+			name:        "valid todo with title and body",
+			title:       "Test Todo",
+			body:        "This is a test todo",
+			expectError: false,
 		},
 		{
-			name:  "todo with empty body",
-			title: "Test Todo",
-			body:  "",
+			name:        "todo with empty body",
+			title:       "Test Todo",
+			body:        "",
+			expectError: false,
 		},
 		{
-			name:  "todo with empty title",
-			title: "",
-			body:  "This is a test todo",
+			name:        "todo with empty title",
+			title:       "",
+			body:        "This is a test todo",
+			expectError: true,
+			errorMsg:    "title is required",
 		},
 		{
-			name:  "todo with both empty",
-			title: "",
-			body:  "",
+			name:        "todo with both empty",
+			title:       "",
+			body:        "",
+			expectError: true,
+			errorMsg:    "title is required",
 		},
 	}
 
@@ -45,16 +53,22 @@ func TestNewTodo(t *testing.T) {
 			todo, err := NewTodo(tt.title, tt.body)
 
 			// Then
-			require.NoError(t, err)
-			require.NotNil(t, todo)
-			require.Equal(t, tt.title, todo.Title())
-			require.Equal(t, tt.body, todo.Body())
-			require.NotEqual(t, TodoID{}, todo.ID())
-			require.False(t, todo.CreatedAt().IsZero())
-			require.False(t, todo.UpdatedAt().IsZero())
-			require.True(t, todo.CreatedAt().After(before) || todo.CreatedAt().Equal(before))
-			require.True(t, todo.UpdatedAt().After(before) || todo.UpdatedAt().Equal(before))
-			require.Equal(t, todo.CreatedAt(), todo.UpdatedAt())
+			if tt.expectError {
+				require.Error(t, err)
+				require.Equal(t, tt.errorMsg, err.Error())
+				require.Nil(t, todo)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, todo)
+				require.Equal(t, tt.title, todo.Title())
+				require.Equal(t, tt.body, todo.Body())
+				require.NotEqual(t, TodoID{}, todo.ID())
+				require.False(t, todo.CreatedAt().IsZero())
+				require.False(t, todo.UpdatedAt().IsZero())
+				require.True(t, todo.CreatedAt().After(before) || todo.CreatedAt().Equal(before))
+				require.True(t, todo.UpdatedAt().After(before) || todo.UpdatedAt().Equal(before))
+				require.Equal(t, todo.CreatedAt(), todo.UpdatedAt())
+			}
 		})
 	}
 }

@@ -21,6 +21,9 @@ type Todo struct {
 
 // NewTodo creates a new Todo.
 func NewTodo(title string, body string) (*Todo, error) {
+	if title == "" {
+		return nil, errors.New("title is required")
+	}
 	now := time.Now()
 	return &Todo{
 		id:          NewTodoID(),
