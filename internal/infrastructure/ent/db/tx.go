@@ -6,6 +6,7 @@ import (
 
 	"github.com/iktakahiro/oniongo/internal/application/uow"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen"
+	"github.com/samber/do"
 )
 
 type key int
@@ -18,8 +19,8 @@ const (
 type entTransactionRunner struct{}
 
 // NewEntTransactionRunner creates a new ent transaction runner.
-func NewEntTransactionRunner() uow.TransactionRunner {
-	return &entTransactionRunner{}
+func NewEntTransactionRunner(i *do.Injector) (uow.TransactionRunner, error) {
+	return &entTransactionRunner{}, nil
 }
 
 // RunInTx runs a function in a transaction.
