@@ -53,7 +53,7 @@ make server
 
 ディレクトリ構造はオニオンアーキテクチャに基づいています：
 
-```
+```text
 internal/
 ├── domain/           # ドメイン層（エンティティ、値オブジェクト、リポジトリインターフェース）
 │   └── todo/
@@ -424,8 +424,66 @@ make migrate-up
 
 ### テスト実行
 
+#### ユニットテスト
+
+カバレッジ付きですべてのユニットテストを実行：
+
 ```bash
-go test ./...
+make test
+```
+
+特定のパッケージのテストを実行：
+
+```bash
+go test -v ./internal/domain/todo/...
+go test -v ./internal/application/todoapp/...
+```
+
+#### エンドツーエンドテスト
+
+このプロジェクトはAPIのe2eテストに[runn](https://github.com/k1LoW/runn)を使用しています。runnを使うとYAML形式でテストシナリオを記述し、稼働中のサーバーに対して実行できます。
+
+まず、サーバーが起動していることを確認：
+
+```bash
+make server
+```
+
+その後、e2eテストを実行：
+
+```bash
+# すべてのe2eテストを実行
+make e2e-test
+
+# 詳細な出力付きで実行
+make e2e-test-verbose
+```
+
+e2eテストファイルは`e2e/`ディレクトリにあります：
+
+* `create_todo.yaml`: Todo作成のテスト
+* `get_todos.yaml`: 全Todo取得のテスト
+* `todo_lifecycle.yaml`: Todoの完全なライフサイクルのテスト（作成、開始、更新、完了、削除）
+* `validation_test.yaml`: APIバリデーションとエラーハンドリングのテスト
+
+e2eテストシナリオの例：
+
+```yaml
+desc: Create a new todo
+runners:
+  req: http://localhost:8080
+steps:
+  create_todo:
+    desc: Create a new todo item
+    req:
+      /oniongo.v1.TodoService/CreateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              title: "Buy groceries"
+              body: "Milk, eggs, bread"
 ```
 
 ### コード品質

@@ -424,8 +424,66 @@ make migrate-up
 
 ### Running Tests
 
+#### Unit Tests
+
+Run all unit tests with coverage:
+
 ```bash
-go test ./...
+make test
+```
+
+Or run tests for a specific package:
+
+```bash
+go test -v ./internal/domain/todo/...
+go test -v ./internal/application/todoapp/...
+```
+
+#### End-to-End Tests
+
+This project uses [runn](https://github.com/k1LoW/runn) for API end-to-end testing. runn allows you to write test scenarios in YAML format and execute them against the running server.
+
+First, ensure the server is running:
+
+```bash
+make server
+```
+
+Then run the e2e tests:
+
+```bash
+# Run all e2e tests
+make e2e-test
+
+# Run with verbose output
+make e2e-test-verbose
+```
+
+The e2e test files are located in the `e2e/` directory:
+
+* `create_todo.yaml`: Tests todo creation
+* `get_todos.yaml`: Tests retrieving all todos
+* `todo_lifecycle.yaml`: Tests complete todo lifecycle (create, start, update, complete, delete)
+* `validation_test.yaml`: Tests API validation and error handling
+
+Example e2e test scenario:
+
+```yaml
+desc: Create a new todo
+runners:
+  req: http://localhost:8080
+steps:
+  create_todo:
+    desc: Create a new todo item
+    req:
+      /oniongo.v1.TodoService/CreateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              title: "Buy groceries"
+              body: "Milk, eggs, bread"
 ```
 
 ### Code Quality
