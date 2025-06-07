@@ -13,3 +13,31 @@ steps:
             application/json:
               title: "Buy groceries"
               body: "Milk, eggs, bread"
+    test: |
+      current.res.status == 200
+
+  get_todos_to_find_created:
+    desc: Get todos to find the created todo
+    req:
+      /oniongo.v1.TodoService/GetTodos:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json: {}
+    bind:
+      todoId: |
+        steps.get_todos_to_find_created.res.body.todos[len(steps.get_todos_to_find_created.res.body.todos) - 1].id
+
+  cleanup_delete_todo:
+    desc: Delete the created todo for cleanup
+    req:
+      /oniongo.v1.TodoService/DeleteTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+    test: |
+      current.res.status == 200

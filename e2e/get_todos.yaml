@@ -2,6 +2,18 @@ desc: Get all todos
 runners:
   req: http://localhost:8080
 steps:
+  setup_create_todo:
+    desc: Create a test todo
+    req:
+      /oniongo.v1.TodoService/CreateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              title: "Test todo for GetTodos"
+              body: "This todo will be used to test GetTodos endpoint"
+
   get_todos:
     desc: Get all todo items
     req:
@@ -11,5 +23,22 @@ steps:
             Content-Type: application/json
           body:
             application/json: {}
+    test: |
+      current.res.status == 200 &&
+      len(current.res.body.todos) > 0
+    bind:
+      createdTodoId: |
+        steps.get_todos.res.body.todos[len(steps.get_todos.res.body.todos) - 1].id
+
+  cleanup_delete_todo:
+    desc: Delete the created todo for cleanup
+    req:
+      /oniongo.v1.TodoService/DeleteTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ createdTodoId }}"
     test: |
       current.res.status == 200
