@@ -96,11 +96,11 @@ func (r todoRepository) Update(ctx context.Context, todo *todo.Todo) (err error)
 		SetTitle(todo.Title()).
 		SetBody(todo.Body()).
 		SetStatus(status)
-	
+
 	if todo.CompletedAt() != nil {
 		update = update.SetCompletedAt(*todo.CompletedAt())
 	}
-	
+
 	_, err = update.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update todo %v: %w", todo.ID(), err)
@@ -128,5 +128,13 @@ func convertEntToTodo(v *entgen.TodoSchema) (*todo.Todo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert status %v: %w", v.Status, err)
 	}
-	return todo.ReconstructTodoWithStatus(v.ID, v.Title, *v.Body, status, v.CreatedAt, v.UpdatedAt, v.CompletedAt), nil
+	return todo.ReconstructTodoWithStatus(
+		v.ID,
+		v.Title,
+		*v.Body,
+		status,
+		v.CreatedAt,
+		v.UpdatedAt,
+		v.CompletedAt,
+	), nil
 }

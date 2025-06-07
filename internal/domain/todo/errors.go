@@ -33,4 +33,3 @@ type StateError struct {
 func (e *StateError) Error() string {
 	return e.Message
 }
-
