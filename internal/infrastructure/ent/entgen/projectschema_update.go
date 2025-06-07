@@ -68,7 +68,7 @@ func (psu *ProjectSchemaUpdate) Modify(modifiers ...func(u *sql.UpdateBuilder)) 
 }
 
 func (psu *ProjectSchemaUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(projectschema.Table, projectschema.Columns, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(projectschema.Table, projectschema.Columns, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeUUID))
 	if ps := psu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -152,7 +152,7 @@ func (psuo *ProjectSchemaUpdateOne) Modify(modifiers ...func(u *sql.UpdateBuilde
 }
 
 func (psuo *ProjectSchemaUpdateOne) sqlSave(ctx context.Context) (_node *ProjectSchema, err error) {
-	_spec := sqlgraph.NewUpdateSpec(projectschema.Table, projectschema.Columns, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(projectschema.Table, projectschema.Columns, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeUUID))
 	id, ok := psuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`entgen: missing "ProjectSchema.id" for update`)}

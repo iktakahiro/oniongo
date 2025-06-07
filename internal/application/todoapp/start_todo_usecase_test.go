@@ -186,6 +186,6 @@ func TestStartTodoUseCase_Execute(t *testing.T) {
 
 		// Then
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "failed to execute transaction")
+		require.Contains(t, err.Error(), "todo is already completed")
 	})
 }

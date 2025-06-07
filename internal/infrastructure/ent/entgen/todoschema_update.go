@@ -98,6 +98,26 @@ func (tsu *TodoSchemaUpdate) SetUpdatedAt(t time.Time) *TodoSchemaUpdate {
 	return tsu
 }
 
+// SetCompletedAt sets the "completed_at" field.
+func (tsu *TodoSchemaUpdate) SetCompletedAt(t time.Time) *TodoSchemaUpdate {
+	tsu.mutation.SetCompletedAt(t)
+	return tsu
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (tsu *TodoSchemaUpdate) SetNillableCompletedAt(t *time.Time) *TodoSchemaUpdate {
+	if t != nil {
+		tsu.SetCompletedAt(*t)
+	}
+	return tsu
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (tsu *TodoSchemaUpdate) ClearCompletedAt() *TodoSchemaUpdate {
+	tsu.mutation.ClearCompletedAt()
+	return tsu
+}
+
 // SetDeletedAt sets the "deleted_at" field.
 func (tsu *TodoSchemaUpdate) SetDeletedAt(t time.Time) *TodoSchemaUpdate {
 	tsu.mutation.SetDeletedAt(t)
@@ -210,6 +230,12 @@ func (tsu *TodoSchemaUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := tsu.mutation.UpdatedAt(); ok {
 		_spec.SetField(todoschema.FieldUpdatedAt, field.TypeTime, value)
 	}
+	if value, ok := tsu.mutation.CompletedAt(); ok {
+		_spec.SetField(todoschema.FieldCompletedAt, field.TypeTime, value)
+	}
+	if tsu.mutation.CompletedAtCleared() {
+		_spec.ClearField(todoschema.FieldCompletedAt, field.TypeTime)
+	}
 	if value, ok := tsu.mutation.DeletedAt(); ok {
 		_spec.SetField(todoschema.FieldDeletedAt, field.TypeTime, value)
 	}
@@ -305,6 +331,26 @@ func (tsuo *TodoSchemaUpdateOne) SetNillableCreatedAt(t *time.Time) *TodoSchemaU
 // SetUpdatedAt sets the "updated_at" field.
 func (tsuo *TodoSchemaUpdateOne) SetUpdatedAt(t time.Time) *TodoSchemaUpdateOne {
 	tsuo.mutation.SetUpdatedAt(t)
+	return tsuo
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (tsuo *TodoSchemaUpdateOne) SetCompletedAt(t time.Time) *TodoSchemaUpdateOne {
+	tsuo.mutation.SetCompletedAt(t)
+	return tsuo
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (tsuo *TodoSchemaUpdateOne) SetNillableCompletedAt(t *time.Time) *TodoSchemaUpdateOne {
+	if t != nil {
+		tsuo.SetCompletedAt(*t)
+	}
+	return tsuo
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (tsuo *TodoSchemaUpdateOne) ClearCompletedAt() *TodoSchemaUpdateOne {
+	tsuo.mutation.ClearCompletedAt()
 	return tsuo
 }
 
@@ -449,6 +495,12 @@ func (tsuo *TodoSchemaUpdateOne) sqlSave(ctx context.Context) (_node *TodoSchema
 	}
 	if value, ok := tsuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(todoschema.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if value, ok := tsuo.mutation.CompletedAt(); ok {
+		_spec.SetField(todoschema.FieldCompletedAt, field.TypeTime, value)
+	}
+	if tsuo.mutation.CompletedAtCleared() {
+		_spec.ClearField(todoschema.FieldCompletedAt, field.TypeTime)
 	}
 	if value, ok := tsuo.mutation.DeletedAt(); ok {
 		_spec.SetField(todoschema.FieldDeletedAt, field.TypeTime, value)

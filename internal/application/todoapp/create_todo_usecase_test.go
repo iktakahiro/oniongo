@@ -125,7 +125,7 @@ func TestCreateTodoUseCase_Execute(t *testing.T) {
 
 		// Then
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "failed to create todo")
+		require.Contains(t, err.Error(), "title is required")
 		// Transaction should not be called when todo creation fails
 		mockTxRunner.AssertNotCalled(t, "RunInTx")
 	})

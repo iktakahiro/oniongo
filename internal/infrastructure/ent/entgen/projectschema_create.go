@@ -7,9 +7,11 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/projectschema"
 )
 
@@ -21,6 +23,20 @@ type ProjectSchemaCreate struct {
 	conflict []sql.ConflictOption
 }
 
+// SetID sets the "id" field.
+func (psc *ProjectSchemaCreate) SetID(u uuid.UUID) *ProjectSchemaCreate {
+	psc.mutation.SetID(u)
+	return psc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (psc *ProjectSchemaCreate) SetNillableID(u *uuid.UUID) *ProjectSchemaCreate {
+	if u != nil {
+		psc.SetID(*u)
+	}
+	return psc
+}
+
 // Mutation returns the ProjectSchemaMutation object of the builder.
 func (psc *ProjectSchemaCreate) Mutation() *ProjectSchemaMutation {
 	return psc.mutation
@@ -28,6 +44,7 @@ func (psc *ProjectSchemaCreate) Mutation() *ProjectSchemaMutation {
 
 // Save creates the ProjectSchema in the database.
 func (psc *ProjectSchemaCreate) Save(ctx context.Context) (*ProjectSchema, error) {
+	psc.defaults()
 	return withHooks(ctx, psc.sqlSave, psc.mutation, psc.hooks)
 }
 
@@ -53,6 +70,14 @@ func (psc *ProjectSchemaCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (psc *ProjectSchemaCreate) defaults() {
+	if _, ok := psc.mutation.ID(); !ok {
+		v := projectschema.DefaultID()
+		psc.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (psc *ProjectSchemaCreate) check() error {
 	return nil
@@ -69,8 +94,13 @@ func (psc *ProjectSchemaCreate) sqlSave(ctx context.Context) (*ProjectSchema, er
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	psc.mutation.id = &_node.ID
 	psc.mutation.done = true
 	return _node, nil
@@ -79,10 +109,14 @@ func (psc *ProjectSchemaCreate) sqlSave(ctx context.Context) (*ProjectSchema, er
 func (psc *ProjectSchemaCreate) createSpec() (*ProjectSchema, *sqlgraph.CreateSpec) {
 	var (
 		_node = &ProjectSchema{config: psc.config}
-		_spec = sqlgraph.NewCreateSpec(projectschema.Table, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(projectschema.Table, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeUUID))
 	)
 	_spec.Schema = psc.schemaConfig.ProjectSchema
 	_spec.OnConflict = psc.conflict
+	if id, ok := psc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	return _node, _spec
 }
 
@@ -129,16 +163,24 @@ type (
 	}
 )
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.ProjectSchema.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(projectschema.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ProjectSchemaUpsertOne) UpdateNewValues() *ProjectSchemaUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(projectschema.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -185,7 +227,12 @@ func (u *ProjectSchemaUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ProjectSchemaUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *ProjectSchemaUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("entgen: ProjectSchemaUpsertOne.ID is not supported by MySQL driver. Use ProjectSchemaUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -194,7 +241,7 @@ func (u *ProjectSchemaUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *ProjectSchemaUpsertOne) IDX(ctx context.Context) int {
+func (u *ProjectSchemaUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -221,6 +268,7 @@ func (pscb *ProjectSchemaCreateBulk) Save(ctx context.Context) ([]*ProjectSchema
 	for i := range pscb.builders {
 		func(i int, root context.Context) {
 			builder := pscb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ProjectSchemaMutation)
 				if !ok {
@@ -248,10 +296,6 @@ func (pscb *ProjectSchemaCreateBulk) Save(ctx context.Context) ([]*ProjectSchema
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -333,10 +377,20 @@ type ProjectSchemaUpsertBulk struct {
 //	client.ProjectSchema.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(projectschema.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *ProjectSchemaUpsertBulk) UpdateNewValues() *ProjectSchemaUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(projectschema.FieldID)
+			}
+		}
+	}))
 	return u
 }
 

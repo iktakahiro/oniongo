@@ -63,3 +63,11 @@ server:
 .PHONY: test
 test:
 	go test -v ./...
+
+.PHONY: e2e-test
+e2e-test:
+	runn run e2e/*.yaml
+
+.PHONY: e2e-test-verbose
+e2e-test-verbose:
+	runn run --verbose e2e/*.yaml

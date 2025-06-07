@@ -86,6 +86,20 @@ func (tsc *TodoSchemaCreate) SetNillableUpdatedAt(t *time.Time) *TodoSchemaCreat
 	return tsc
 }
 
+// SetCompletedAt sets the "completed_at" field.
+func (tsc *TodoSchemaCreate) SetCompletedAt(t time.Time) *TodoSchemaCreate {
+	tsc.mutation.SetCompletedAt(t)
+	return tsc
+}
+
+// SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
+func (tsc *TodoSchemaCreate) SetNillableCompletedAt(t *time.Time) *TodoSchemaCreate {
+	if t != nil {
+		tsc.SetCompletedAt(*t)
+	}
+	return tsc
+}
+
 // SetDeletedAt sets the "deleted_at" field.
 func (tsc *TodoSchemaCreate) SetDeletedAt(t time.Time) *TodoSchemaCreate {
 	tsc.mutation.SetDeletedAt(t)
@@ -248,6 +262,10 @@ func (tsc *TodoSchemaCreate) createSpec() (*TodoSchema, *sqlgraph.CreateSpec) {
 		_spec.SetField(todoschema.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
+	if value, ok := tsc.mutation.CompletedAt(); ok {
+		_spec.SetField(todoschema.FieldCompletedAt, field.TypeTime, value)
+		_node.CompletedAt = &value
+	}
 	if value, ok := tsc.mutation.DeletedAt(); ok {
 		_spec.SetField(todoschema.FieldDeletedAt, field.TypeTime, value)
 		_node.DeletedAt = value
@@ -367,6 +385,24 @@ func (u *TodoSchemaUpsert) SetUpdatedAt(v time.Time) *TodoSchemaUpsert {
 // UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
 func (u *TodoSchemaUpsert) UpdateUpdatedAt() *TodoSchemaUpsert {
 	u.SetExcluded(todoschema.FieldUpdatedAt)
+	return u
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (u *TodoSchemaUpsert) SetCompletedAt(v time.Time) *TodoSchemaUpsert {
+	u.Set(todoschema.FieldCompletedAt, v)
+	return u
+}
+
+// UpdateCompletedAt sets the "completed_at" field to the value that was provided on create.
+func (u *TodoSchemaUpsert) UpdateCompletedAt() *TodoSchemaUpsert {
+	u.SetExcluded(todoschema.FieldCompletedAt)
+	return u
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (u *TodoSchemaUpsert) ClearCompletedAt() *TodoSchemaUpsert {
+	u.SetNull(todoschema.FieldCompletedAt)
 	return u
 }
 
@@ -510,6 +546,27 @@ func (u *TodoSchemaUpsertOne) SetUpdatedAt(v time.Time) *TodoSchemaUpsertOne {
 func (u *TodoSchemaUpsertOne) UpdateUpdatedAt() *TodoSchemaUpsertOne {
 	return u.Update(func(s *TodoSchemaUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (u *TodoSchemaUpsertOne) SetCompletedAt(v time.Time) *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.SetCompletedAt(v)
+	})
+}
+
+// UpdateCompletedAt sets the "completed_at" field to the value that was provided on create.
+func (u *TodoSchemaUpsertOne) UpdateCompletedAt() *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.UpdateCompletedAt()
+	})
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (u *TodoSchemaUpsertOne) ClearCompletedAt() *TodoSchemaUpsertOne {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.ClearCompletedAt()
 	})
 }
 
@@ -823,6 +880,27 @@ func (u *TodoSchemaUpsertBulk) SetUpdatedAt(v time.Time) *TodoSchemaUpsertBulk {
 func (u *TodoSchemaUpsertBulk) UpdateUpdatedAt() *TodoSchemaUpsertBulk {
 	return u.Update(func(s *TodoSchemaUpsert) {
 		s.UpdateUpdatedAt()
+	})
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (u *TodoSchemaUpsertBulk) SetCompletedAt(v time.Time) *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.SetCompletedAt(v)
+	})
+}
+
+// UpdateCompletedAt sets the "completed_at" field to the value that was provided on create.
+func (u *TodoSchemaUpsertBulk) UpdateCompletedAt() *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.UpdateCompletedAt()
+	})
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (u *TodoSchemaUpsertBulk) ClearCompletedAt() *TodoSchemaUpsertBulk {
+	return u.Update(func(s *TodoSchemaUpsert) {
+		s.ClearCompletedAt()
 	})
 }
 

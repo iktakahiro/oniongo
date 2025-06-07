@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/projectschema"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/todoschema"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/schema"
 )
@@ -14,6 +15,15 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	projectschemaMixin := schema.ProjectSchema{}.Mixin()
+	projectschemaMixinFields0 := projectschemaMixin[0].Fields()
+	_ = projectschemaMixinFields0
+	projectschemaFields := schema.ProjectSchema{}.Fields()
+	_ = projectschemaFields
+	// projectschemaDescID is the schema descriptor for id field.
+	projectschemaDescID := projectschemaMixinFields0[0].Descriptor()
+	// projectschema.DefaultID holds the default value on creation for the id field.
+	projectschema.DefaultID = projectschemaDescID.Default.(func() uuid.UUID)
 	todoschemaMixin := schema.TodoSchema{}.Mixin()
 	todoschemaMixinFields0 := todoschemaMixin[0].Fields()
 	_ = todoschemaMixinFields0

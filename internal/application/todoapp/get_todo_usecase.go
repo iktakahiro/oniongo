@@ -2,6 +2,7 @@ package todoapp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/iktakahiro/oniongo/internal/application/uow"
@@ -45,14 +46,22 @@ func NewGetTodoUseCase(i *do.Injector) (GetTodoUseCase, error) {
 func (u getTodoUseCase) Execute(ctx context.Context, req GetTodoRequest) (*todo.Todo, error) {
 	var result *todo.Todo
 	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
-		todo, err := u.todoRepository.FindByID(ctx, req.ID)
+		foundTodo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
+			// Preserve domain errors
+			if errors.Is(err, todo.ErrNotFound) {
+				return err
+			}
 			return fmt.Errorf("failed to find todo: %w", err)
 		}
-		result = todo
+		result = foundTodo
 		return nil
 	})
 	if err != nil {
+		// Preserve domain errors
+		if errors.Is(err, todo.ErrNotFound) {
+			return nil, err
+		}
 		return nil, fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return result, nil

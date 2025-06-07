@@ -2,6 +2,7 @@ package todoapp
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/iktakahiro/oniongo/internal/application/uow"
@@ -44,21 +45,32 @@ func NewStartTodoUseCase(i *do.Injector) (StartTodoUseCase, error) {
 // Execute starts a Todo by changing its status to in progress.
 func (u *startTodoUseCase) Execute(ctx context.Context, req StartTodoRequest) error {
 	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
-		todo, err := u.todoRepository.FindByID(ctx, req.ID)
+		foundTodo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
+			if errors.Is(err, todo.ErrNotFound) {
+				return err
+			}
 			return fmt.Errorf("failed to find todo: %w", err)
 		}
 
-		if err := todo.Start(); err != nil {
+		if err := foundTodo.Start(); err != nil {
+			// Preserve domain errors (ErrAlreadyCompleted)
+			if errors.Is(err, todo.ErrAlreadyCompleted) {
+				return err
+			}
 			return fmt.Errorf("failed to start todo: %w", err)
 		}
 
-		if err := u.todoRepository.Update(ctx, todo); err != nil {
+		if err := u.todoRepository.Update(ctx, foundTodo); err != nil {
 			return fmt.Errorf("failed to update todo: %w", err)
 		}
 		return nil
 	})
 	if err != nil {
+		// Preserve domain errors
+		if errors.Is(err, todo.ErrNotFound) || errors.Is(err, todo.ErrAlreadyCompleted) {
+			return err
+		}
 		return fmt.Errorf("failed to execute transaction: %w", err)
 	}
 	return nil

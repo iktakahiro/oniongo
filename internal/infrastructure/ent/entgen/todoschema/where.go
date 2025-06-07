@@ -75,6 +75,11 @@ func UpdatedAt(v time.Time) predicate.TodoSchema {
 	return predicate.TodoSchema(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
+// CompletedAt applies equality check predicate on the "completed_at" field. It's identical to CompletedAtEQ.
+func CompletedAt(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldEQ(FieldCompletedAt, v))
+}
+
 // DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
 func DeletedAt(v time.Time) predicate.TodoSchema {
 	return predicate.TodoSchema(sql.FieldEQ(FieldDeletedAt, v))
@@ -318,6 +323,56 @@ func UpdatedAtLT(v time.Time) predicate.TodoSchema {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.TodoSchema {
 	return predicate.TodoSchema(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// CompletedAtEQ applies the EQ predicate on the "completed_at" field.
+func CompletedAtEQ(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldEQ(FieldCompletedAt, v))
+}
+
+// CompletedAtNEQ applies the NEQ predicate on the "completed_at" field.
+func CompletedAtNEQ(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldNEQ(FieldCompletedAt, v))
+}
+
+// CompletedAtIn applies the In predicate on the "completed_at" field.
+func CompletedAtIn(vs ...time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldIn(FieldCompletedAt, vs...))
+}
+
+// CompletedAtNotIn applies the NotIn predicate on the "completed_at" field.
+func CompletedAtNotIn(vs ...time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldNotIn(FieldCompletedAt, vs...))
+}
+
+// CompletedAtGT applies the GT predicate on the "completed_at" field.
+func CompletedAtGT(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldGT(FieldCompletedAt, v))
+}
+
+// CompletedAtGTE applies the GTE predicate on the "completed_at" field.
+func CompletedAtGTE(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldGTE(FieldCompletedAt, v))
+}
+
+// CompletedAtLT applies the LT predicate on the "completed_at" field.
+func CompletedAtLT(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldLT(FieldCompletedAt, v))
+}
+
+// CompletedAtLTE applies the LTE predicate on the "completed_at" field.
+func CompletedAtLTE(v time.Time) predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldLTE(FieldCompletedAt, v))
+}
+
+// CompletedAtIsNil applies the IsNil predicate on the "completed_at" field.
+func CompletedAtIsNil() predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldIsNull(FieldCompletedAt))
+}
+
+// CompletedAtNotNil applies the NotNil predicate on the "completed_at" field.
+func CompletedAtNotNil() predicate.TodoSchema {
+	return predicate.TodoSchema(sql.FieldNotNull(FieldCompletedAt))
 }
 
 // DeletedAtEQ applies the EQ predicate on the "deleted_at" field.

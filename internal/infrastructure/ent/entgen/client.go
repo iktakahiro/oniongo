@@ -274,7 +274,7 @@ func (c *ProjectSchemaClient) UpdateOne(ps *ProjectSchema) *ProjectSchemaUpdateO
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *ProjectSchemaClient) UpdateOneID(id int) *ProjectSchemaUpdateOne {
+func (c *ProjectSchemaClient) UpdateOneID(id uuid.UUID) *ProjectSchemaUpdateOne {
 	mutation := newProjectSchemaMutation(c.config, OpUpdateOne, withProjectSchemaID(id))
 	return &ProjectSchemaUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -291,7 +291,7 @@ func (c *ProjectSchemaClient) DeleteOne(ps *ProjectSchema) *ProjectSchemaDeleteO
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *ProjectSchemaClient) DeleteOneID(id int) *ProjectSchemaDeleteOne {
+func (c *ProjectSchemaClient) DeleteOneID(id uuid.UUID) *ProjectSchemaDeleteOne {
 	builder := c.Delete().Where(projectschema.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -308,12 +308,12 @@ func (c *ProjectSchemaClient) Query() *ProjectSchemaQuery {
 }
 
 // Get returns a ProjectSchema entity by its id.
-func (c *ProjectSchemaClient) Get(ctx context.Context, id int) (*ProjectSchema, error) {
+func (c *ProjectSchemaClient) Get(ctx context.Context, id uuid.UUID) (*ProjectSchema, error) {
 	return c.Query().Where(projectschema.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *ProjectSchemaClient) GetX(ctx context.Context, id int) *ProjectSchema {
+func (c *ProjectSchemaClient) GetX(ctx context.Context, id uuid.UUID) *ProjectSchema {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

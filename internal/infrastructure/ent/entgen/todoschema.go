@@ -28,6 +28,8 @@ type TodoSchema struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// CompletedAt holds the value of the "completed_at" field.
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
 	// DeletedAt holds the value of the "deleted_at" field.
 	DeletedAt    time.Time `json:"deleted_at,omitempty"`
 	selectValues sql.SelectValues
@@ -40,7 +42,7 @@ func (*TodoSchema) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case todoschema.FieldTitle, todoschema.FieldBody, todoschema.FieldStatus:
 			values[i] = new(sql.NullString)
-		case todoschema.FieldCreatedAt, todoschema.FieldUpdatedAt, todoschema.FieldDeletedAt:
+		case todoschema.FieldCreatedAt, todoschema.FieldUpdatedAt, todoschema.FieldCompletedAt, todoschema.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		case todoschema.FieldID:
 			values[i] = new(uuid.UUID)
@@ -95,6 +97,13 @@ func (ts *TodoSchema) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
 				ts.UpdatedAt = value.Time
+			}
+		case todoschema.FieldCompletedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
+			} else if value.Valid {
+				ts.CompletedAt = new(time.Time)
+				*ts.CompletedAt = value.Time
 			}
 		case todoschema.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -154,6 +163,11 @@ func (ts *TodoSchema) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("updated_at=")
 	builder.WriteString(ts.UpdatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	if v := ts.CompletedAt; v != nil {
+		builder.WriteString("completed_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("deleted_at=")
 	builder.WriteString(ts.DeletedAt.Format(time.ANSIC))

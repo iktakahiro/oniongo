@@ -67,7 +67,7 @@ func (r todoRepository) FindAll(ctx context.Context) (todos []*todo.Todo, err er
 func (r todoRepository) FindByID(
 	ctx context.Context,
 	id todo.TodoID,
-) (todo *todo.Todo, err error) {
+) (*todo.Todo, error) {
 	tx, err := db.GetTx(ctx)
 	if err != nil {
 		return nil, err
@@ -75,6 +75,9 @@ func (r todoRepository) FindByID(
 
 	entity, err := tx.TodoSchema.Get(ctx, id.UUID())
 	if err != nil {
+		if entgen.IsNotFound(err) {
+			return nil, todo.ErrNotFound
+		}
 		return nil, fmt.Errorf("failed to find todo %v: %w", id, err)
 	}
 
@@ -88,10 +91,17 @@ func (r todoRepository) Update(ctx context.Context, todo *todo.Todo) (err error)
 		return err
 	}
 
-	_, err = tx.TodoSchema.UpdateOneID(todo.ID().UUID()).
+	status := todoschema.Status(todo.Status().String())
+	update := tx.TodoSchema.UpdateOneID(todo.ID().UUID()).
 		SetTitle(todo.Title()).
 		SetBody(todo.Body()).
-		Save(ctx)
+		SetStatus(status)
+	
+	if todo.CompletedAt() != nil {
+		update = update.SetCompletedAt(*todo.CompletedAt())
+	}
+	
+	_, err = update.Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update todo %v: %w", todo.ID(), err)
 	}
@@ -118,5 +128,5 @@ func convertEntToTodo(v *entgen.TodoSchema) (*todo.Todo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to convert status %v: %w", v.Status, err)
 	}
-	return todo.ReconstructTodo(v.ID, v.Title, *v.Body, status, v.CreatedAt, v.UpdatedAt), nil
+	return todo.ReconstructTodoWithStatus(v.ID, v.Title, *v.Body, status, v.CreatedAt, v.UpdatedAt, v.CompletedAt), nil
 }

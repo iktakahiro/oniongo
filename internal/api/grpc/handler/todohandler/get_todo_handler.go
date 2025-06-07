@@ -41,7 +41,7 @@ func (h getTodoHandler) GetTodo(
 	// Execute use case
 	domainTodo, err := h.useCase.Execute(ctx, useCaseReq)
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, toConnectError(err)
 	}
 
 	// Convert to protobuf and return response

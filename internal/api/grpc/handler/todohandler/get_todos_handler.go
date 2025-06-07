@@ -33,7 +33,7 @@ func (h getTodosHandler) GetTodos(
 	// Execute use case
 	domainTodos, err := h.useCase.Execute(ctx, useCaseReq)
 	if err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, toConnectError(err)
 	}
 
 	// Convert to protobuf

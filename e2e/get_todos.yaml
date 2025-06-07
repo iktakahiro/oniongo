@@ -1,0 +1,15 @@
+desc: Get all todos
+runners:
+  req: http://localhost:8080
+steps:
+  get_todos:
+    desc: Get all todo items
+    req:
+      /oniongo.v1.TodoService/GetTodos:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json: {}
+    test: |
+      current.res.status == 200

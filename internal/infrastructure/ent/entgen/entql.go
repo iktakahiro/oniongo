@@ -20,7 +20,7 @@ var schemaGraph = func() *sqlgraph.Schema {
 			Table:   projectschema.Table,
 			Columns: projectschema.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: projectschema.FieldID,
 			},
 		},
@@ -38,12 +38,13 @@ var schemaGraph = func() *sqlgraph.Schema {
 		},
 		Type: "TodoSchema",
 		Fields: map[string]*sqlgraph.FieldSpec{
-			todoschema.FieldTitle:     {Type: field.TypeString, Column: todoschema.FieldTitle},
-			todoschema.FieldBody:      {Type: field.TypeString, Column: todoschema.FieldBody},
-			todoschema.FieldStatus:    {Type: field.TypeEnum, Column: todoschema.FieldStatus},
-			todoschema.FieldCreatedAt: {Type: field.TypeTime, Column: todoschema.FieldCreatedAt},
-			todoschema.FieldUpdatedAt: {Type: field.TypeTime, Column: todoschema.FieldUpdatedAt},
-			todoschema.FieldDeletedAt: {Type: field.TypeTime, Column: todoschema.FieldDeletedAt},
+			todoschema.FieldTitle:       {Type: field.TypeString, Column: todoschema.FieldTitle},
+			todoschema.FieldBody:        {Type: field.TypeString, Column: todoschema.FieldBody},
+			todoschema.FieldStatus:      {Type: field.TypeEnum, Column: todoschema.FieldStatus},
+			todoschema.FieldCreatedAt:   {Type: field.TypeTime, Column: todoschema.FieldCreatedAt},
+			todoschema.FieldUpdatedAt:   {Type: field.TypeTime, Column: todoschema.FieldUpdatedAt},
+			todoschema.FieldCompletedAt: {Type: field.TypeTime, Column: todoschema.FieldCompletedAt},
+			todoschema.FieldDeletedAt:   {Type: field.TypeTime, Column: todoschema.FieldDeletedAt},
 		},
 	}
 	return graph
@@ -90,8 +91,8 @@ func (f *ProjectSchemaFilter) Where(p entql.P) {
 	})
 }
 
-// WhereID applies the entql int predicate on the id field.
-func (f *ProjectSchemaFilter) WhereID(p entql.IntP) {
+// WhereID applies the entql [16]byte predicate on the id field.
+func (f *ProjectSchemaFilter) WhereID(p entql.ValueP) {
 	f.Where(p.Field(projectschema.FieldID))
 }
 
@@ -158,6 +159,11 @@ func (f *TodoSchemaFilter) WhereCreatedAt(p entql.TimeP) {
 // WhereUpdatedAt applies the entql time.Time predicate on the updated_at field.
 func (f *TodoSchemaFilter) WhereUpdatedAt(p entql.TimeP) {
 	f.Where(p.Field(todoschema.FieldUpdatedAt))
+}
+
+// WhereCompletedAt applies the entql time.Time predicate on the completed_at field.
+func (f *TodoSchemaFilter) WhereCompletedAt(p entql.TimeP) {
+	f.Where(p.Field(todoschema.FieldCompletedAt))
 }
 
 // WhereDeletedAt applies the entql time.Time predicate on the deleted_at field.

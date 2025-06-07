@@ -1,0 +1,15 @@
+desc: Create a new todo
+runners:
+  req: http://localhost:8080
+steps:
+  create_todo:
+    desc: Create a new todo item
+    req:
+      /oniongo.v1.TodoService/CreateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              title: "Buy groceries"
+              body: "Milk, eggs, bread"

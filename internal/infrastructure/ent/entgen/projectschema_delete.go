@@ -41,7 +41,7 @@ func (psd *ProjectSchemaDelete) ExecX(ctx context.Context) int {
 }
 
 func (psd *ProjectSchemaDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(projectschema.Table, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(projectschema.Table, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeUUID))
 	_spec.Node.Schema = psd.schemaConfig.ProjectSchema
 	ctx = internal.NewSchemaConfigContext(ctx, psd.schemaConfig)
 	if ps := psd.mutation.predicates; len(ps) > 0 {

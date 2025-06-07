@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/internal"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/predicate"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/projectschema"
@@ -85,8 +86,8 @@ func (psq *ProjectSchemaQuery) FirstX(ctx context.Context) *ProjectSchema {
 
 // FirstID returns the first ProjectSchema ID from the query.
 // Returns a *NotFoundError when no ProjectSchema ID was found.
-func (psq *ProjectSchemaQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (psq *ProjectSchemaQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = psq.Limit(1).IDs(setContextOp(ctx, psq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -98,7 +99,7 @@ func (psq *ProjectSchemaQuery) FirstID(ctx context.Context) (id int, err error) 
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (psq *ProjectSchemaQuery) FirstIDX(ctx context.Context) int {
+func (psq *ProjectSchemaQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := psq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -136,8 +137,8 @@ func (psq *ProjectSchemaQuery) OnlyX(ctx context.Context) *ProjectSchema {
 // OnlyID is like Only, but returns the only ProjectSchema ID in the query.
 // Returns a *NotSingularError when more than one ProjectSchema ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (psq *ProjectSchemaQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (psq *ProjectSchemaQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = psq.Limit(2).IDs(setContextOp(ctx, psq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -153,7 +154,7 @@ func (psq *ProjectSchemaQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (psq *ProjectSchemaQuery) OnlyIDX(ctx context.Context) int {
+func (psq *ProjectSchemaQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := psq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -181,7 +182,7 @@ func (psq *ProjectSchemaQuery) AllX(ctx context.Context) []*ProjectSchema {
 }
 
 // IDs executes the query and returns a list of ProjectSchema IDs.
-func (psq *ProjectSchemaQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (psq *ProjectSchemaQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if psq.ctx.Unique == nil && psq.path != nil {
 		psq.Unique(true)
 	}
@@ -193,7 +194,7 @@ func (psq *ProjectSchemaQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (psq *ProjectSchemaQuery) IDsX(ctx context.Context) []int {
+func (psq *ProjectSchemaQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := psq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -357,7 +358,7 @@ func (psq *ProjectSchemaQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (psq *ProjectSchemaQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(projectschema.Table, projectschema.Columns, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(projectschema.Table, projectschema.Columns, sqlgraph.NewFieldSpec(projectschema.FieldID, field.TypeUUID))
 	_spec.From = psq.sql
 	if unique := psq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

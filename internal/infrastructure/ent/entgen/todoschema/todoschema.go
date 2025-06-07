@@ -25,6 +25,8 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
+	// FieldCompletedAt holds the string denoting the completed_at field in the database.
+	FieldCompletedAt = "completed_at"
 	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
 	FieldDeletedAt = "deleted_at"
 	// Table holds the table name of the todoschema in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldCreatedAt,
 	FieldUpdatedAt,
+	FieldCompletedAt,
 	FieldDeletedAt,
 }
 
@@ -123,6 +126,11 @@ func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdatedAt orders the results by the updated_at field.
 func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
+}
+
+// ByCompletedAt orders the results by the completed_at field.
+func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
 }
 
 // ByDeletedAt orders the results by the deleted_at field.

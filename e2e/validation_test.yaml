@@ -1,0 +1,43 @@
+desc: Test API validation
+runners:
+  req: http://localhost:8080
+steps:
+  empty_title:
+    desc: Try to create todo with empty title
+    req:
+      /oniongo.v1.TodoService/CreateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              title: ""
+              body: "This should fail"
+    test: |
+      current.res.status == 400
+
+  invalid_uuid:
+    desc: Try to get todo with invalid UUID
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "not-a-valid-uuid"
+    test: |
+      current.res.status == 400
+
+  nonexistent_todo:
+    desc: Try to get non-existent todo
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "00000000-0000-0000-0000-000000000000"
+    test: |
+      current.res.status == 404

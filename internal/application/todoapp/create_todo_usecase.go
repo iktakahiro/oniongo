@@ -45,12 +45,13 @@ func NewCreateTodoUseCase(i *do.Injector) (CreateTodoUseCase, error) {
 
 // Execute creates a new Todo.
 func (u createTodoUseCase) Execute(ctx context.Context, req CreateTodoRequest) error {
-	todo, err := todo.NewTodo(req.Title, req.Body)
+	newTodo, err := todo.NewTodo(req.Title, req.Body)
 	if err != nil {
-		return fmt.Errorf("failed to create todo: %w", err)
+		// Return domain error directly for proper error handling
+		return err
 	}
 	err = u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
-		if err := u.todoRepository.Create(ctx, todo); err != nil {
+		if err := u.todoRepository.Create(ctx, newTodo); err != nil {
 			return fmt.Errorf("failed to save todo: %w", err)
 		}
 		return nil

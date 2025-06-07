@@ -41,7 +41,7 @@ func (h createTodoHandler) CreateTodo(
 
 	// Execute use case
 	if err := h.useCase.Execute(ctx, useCaseReq); err != nil {
-		return nil, connect.NewError(connect.CodeInternal, err)
+		return nil, toConnectError(err)
 	}
 
 	// Return response

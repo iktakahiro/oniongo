@@ -34,7 +34,7 @@ type ProjectSchemaMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *uuid.UUID
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*ProjectSchema, error)
@@ -61,7 +61,7 @@ func newProjectSchemaMutation(c config, op Op, opts ...projectschemaOption) *Pro
 }
 
 // withProjectSchemaID sets the ID field of the mutation.
-func withProjectSchemaID(id int) projectschemaOption {
+func withProjectSchemaID(id uuid.UUID) projectschemaOption {
 	return func(m *ProjectSchemaMutation) {
 		var (
 			err   error
@@ -111,9 +111,15 @@ func (m ProjectSchemaMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of ProjectSchema entities.
+func (m *ProjectSchemaMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *ProjectSchemaMutation) ID() (id int, exists bool) {
+func (m *ProjectSchemaMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -124,12 +130,12 @@ func (m *ProjectSchemaMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *ProjectSchemaMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *ProjectSchemaMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []uuid.UUID{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -304,6 +310,7 @@ type TodoSchemaMutation struct {
 	status        *todoschema.Status
 	created_at    *time.Time
 	updated_at    *time.Time
+	completed_at  *time.Time
 	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
@@ -608,6 +615,55 @@ func (m *TodoSchemaMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetCompletedAt sets the "completed_at" field.
+func (m *TodoSchemaMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *TodoSchemaMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the TodoSchema entity.
+// If the TodoSchema object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *TodoSchemaMutation) OldCompletedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *TodoSchemaMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[todoschema.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *TodoSchemaMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[todoschema.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *TodoSchemaMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, todoschema.FieldCompletedAt)
+}
+
 // SetDeletedAt sets the "deleted_at" field.
 func (m *TodoSchemaMutation) SetDeletedAt(t time.Time) {
 	m.deleted_at = &t
@@ -691,7 +747,7 @@ func (m *TodoSchemaMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *TodoSchemaMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
 	if m.title != nil {
 		fields = append(fields, todoschema.FieldTitle)
 	}
@@ -706,6 +762,9 @@ func (m *TodoSchemaMutation) Fields() []string {
 	}
 	if m.updated_at != nil {
 		fields = append(fields, todoschema.FieldUpdatedAt)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, todoschema.FieldCompletedAt)
 	}
 	if m.deleted_at != nil {
 		fields = append(fields, todoschema.FieldDeletedAt)
@@ -728,6 +787,8 @@ func (m *TodoSchemaMutation) Field(name string) (ent.Value, bool) {
 		return m.CreatedAt()
 	case todoschema.FieldUpdatedAt:
 		return m.UpdatedAt()
+	case todoschema.FieldCompletedAt:
+		return m.CompletedAt()
 	case todoschema.FieldDeletedAt:
 		return m.DeletedAt()
 	}
@@ -749,6 +810,8 @@ func (m *TodoSchemaMutation) OldField(ctx context.Context, name string) (ent.Val
 		return m.OldCreatedAt(ctx)
 	case todoschema.FieldUpdatedAt:
 		return m.OldUpdatedAt(ctx)
+	case todoschema.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
 	case todoschema.FieldDeletedAt:
 		return m.OldDeletedAt(ctx)
 	}
@@ -795,6 +858,13 @@ func (m *TodoSchemaMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUpdatedAt(v)
 		return nil
+	case todoschema.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
 	case todoschema.FieldDeletedAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -835,6 +905,9 @@ func (m *TodoSchemaMutation) ClearedFields() []string {
 	if m.FieldCleared(todoschema.FieldBody) {
 		fields = append(fields, todoschema.FieldBody)
 	}
+	if m.FieldCleared(todoschema.FieldCompletedAt) {
+		fields = append(fields, todoschema.FieldCompletedAt)
+	}
 	if m.FieldCleared(todoschema.FieldDeletedAt) {
 		fields = append(fields, todoschema.FieldDeletedAt)
 	}
@@ -854,6 +927,9 @@ func (m *TodoSchemaMutation) ClearField(name string) error {
 	switch name {
 	case todoschema.FieldBody:
 		m.ClearBody()
+		return nil
+	case todoschema.FieldCompletedAt:
+		m.ClearCompletedAt()
 		return nil
 	case todoschema.FieldDeletedAt:
 		m.ClearDeletedAt()
@@ -880,6 +956,9 @@ func (m *TodoSchemaMutation) ResetField(name string) error {
 		return nil
 	case todoschema.FieldUpdatedAt:
 		m.ResetUpdatedAt()
+		return nil
+	case todoschema.FieldCompletedAt:
+		m.ResetCompletedAt()
 		return nil
 	case todoschema.FieldDeletedAt:
 		m.ResetDeletedAt()

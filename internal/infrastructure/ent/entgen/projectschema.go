@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/iktakahiro/oniongo/internal/infrastructure/ent/entgen/projectschema"
 )
 
@@ -15,7 +16,7 @@ import (
 type ProjectSchema struct {
 	config
 	// ID of the ent.
-	ID           int `json:"id,omitempty"`
+	ID           uuid.UUID `json:"id,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -25,7 +26,7 @@ func (*ProjectSchema) scanValues(columns []string) ([]any, error) {
 	for i := range columns {
 		switch columns[i] {
 		case projectschema.FieldID:
-			values[i] = new(sql.NullInt64)
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -42,11 +43,11 @@ func (ps *ProjectSchema) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case projectschema.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				ps.ID = *value
 			}
-			ps.ID = int(value.Int64)
 		default:
 			ps.selectValues.Set(columns[i], values[i])
 		}

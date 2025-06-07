@@ -295,7 +295,7 @@ func TestTodo_Start(t *testing.T) {
 			name:          "start completed todo",
 			initialStatus: TodoStatusCompleted,
 			expectError:   true,
-			errorMsg:      "cannot start a completed todo",
+			errorMsg:      "todo is already completed",
 		},
 	}
 

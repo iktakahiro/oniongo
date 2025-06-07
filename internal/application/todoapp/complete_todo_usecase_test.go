@@ -119,7 +119,7 @@ func TestCompleteTodoUseCase_Execute(t *testing.T) {
 
 		// Then
 		require.Error(t, err)
-		require.Contains(t, err.Error(), "failed to execute transaction")
+		require.Contains(t, err.Error(), "todo is already completed")
 	})
 
 	t.Run("returns error when update repository fails", func(t *testing.T) {

@@ -2,7 +2,6 @@
 package todo
 
 import (
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,7 +21,7 @@ type Todo struct {
 // NewTodo creates a new Todo.
 func NewTodo(title string, body string) (*Todo, error) {
 	if title == "" {
-		return nil, errors.New("title is required")
+		return nil, ErrTitleRequired
 	}
 	now := time.Now()
 	return &Todo{
@@ -73,7 +72,7 @@ func (t Todo) CompletedAt() *time.Time {
 
 func (t *Todo) SetTitle(title string) error {
 	if title == "" {
-		return errors.New("title is required")
+		return ErrTitleRequired
 	}
 	t.title = title
 	t.updatedAt = time.Now()
@@ -89,7 +88,7 @@ func (t *Todo) SetBody(body string) error {
 // Start changes the Todo's status to in progress.
 func (t *Todo) Start() error {
 	if t.status == TodoStatusCompleted {
-		return errors.New("cannot start a completed todo")
+		return ErrAlreadyCompleted
 	}
 	t.status = TodoStatusInProgress
 	t.updatedAt = time.Now()
@@ -99,7 +98,7 @@ func (t *Todo) Start() error {
 // Complete changes the Todo's status to completed.
 func (t *Todo) Complete() error {
 	if t.status == TodoStatusCompleted {
-		return errors.New("todo is already completed")
+		return ErrAlreadyCompleted
 	}
 	now := time.Now()
 	t.status = TodoStatusCompleted

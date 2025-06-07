@@ -11,7 +11,7 @@ import (
 var (
 	// ProjectColumns holds the columns for the "project" table.
 	ProjectColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID},
 	}
 	// ProjectTable holds the schema information for the "project" table.
 	ProjectTable = &schema.Table{
@@ -27,6 +27,7 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"NOT_STARTED", "IN_PROGRESS", "COMPLETED"}, Default: "NOT_STARTED"},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// TodoTable holds the schema information for the "todo" table.
@@ -38,17 +39,17 @@ var (
 			{
 				Name:    "todoschema_deleted_at_created_at",
 				Unique:  false,
-				Columns: []*schema.Column{TodoColumns[6], TodoColumns[4]},
+				Columns: []*schema.Column{TodoColumns[7], TodoColumns[4]},
 			},
 			{
 				Name:    "todoschema_deleted_at_updated_at",
 				Unique:  false,
-				Columns: []*schema.Column{TodoColumns[6], TodoColumns[5]},
+				Columns: []*schema.Column{TodoColumns[7], TodoColumns[5]},
 			},
 			{
 				Name:    "todoschema_deleted_at_status",
 				Unique:  false,
-				Columns: []*schema.Column{TodoColumns[6], TodoColumns[3]},
+				Columns: []*schema.Column{TodoColumns[7], TodoColumns[3]},
 			},
 		},
 	}

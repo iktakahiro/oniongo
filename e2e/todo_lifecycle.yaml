@@ -1,0 +1,142 @@
+desc: Todo complete lifecycle test
+runners:
+  req: http://localhost:8080
+steps:
+  create_todo:
+    desc: Create a new todo
+    req:
+      /oniongo.v1.TodoService/CreateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              title: "Test todo lifecycle"
+              body: "This todo will go through all states"
+
+  get_todos_after_create:
+    desc: Get todos to find the created todo
+    req:
+      /oniongo.v1.TodoService/GetTodos:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json: {}
+    bind:
+      todoId: |
+        steps.get_todos_after_create.res.body.todos[len(steps.get_todos_after_create.res.body.todos) - 1].id
+
+  get_todo:
+    desc: Get the specific todo by ID
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+    test: |
+      current.res.body.todo.title == "Test todo lifecycle" &&
+      current.res.body.todo.status == "TODO_STATUS_NOT_STARTED"
+
+  start_todo:
+    desc: Start the todo
+    req:
+      /oniongo.v1.TodoService/StartTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+
+  verify_started:
+    desc: Verify todo is in progress
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+    test: |
+      current.res.body.todo.status == "TODO_STATUS_IN_PROGRESS"
+
+  update_todo:
+    desc: Update todo title and body
+    req:
+      /oniongo.v1.TodoService/UpdateTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+              title: "Updated todo lifecycle"
+              body: "Updated body content"
+
+  verify_updated:
+    desc: Verify todo was updated
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+    test: |
+      current.res.body.todo.title == "Updated todo lifecycle" &&
+      current.res.body.todo.body == "Updated body content"
+
+  complete_todo:
+    desc: Complete the todo
+    req:
+      /oniongo.v1.TodoService/CompleteTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+
+  verify_completed:
+    desc: Verify todo is completed
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+    test: |
+      current.res.body.todo.status == "TODO_STATUS_COMPLETED" &&
+      current.res.body.todo.completedAt != null
+
+  delete_todo:
+    desc: Delete the todo
+    req:
+      /oniongo.v1.TodoService/DeleteTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+
+  verify_deleted:
+    desc: Verify todo was deleted
+    req:
+      /oniongo.v1.TodoService/GetTodo:
+        post:
+          headers:
+            Content-Type: application/json
+          body:
+            application/json:
+              id: "{{ todoId }}"
+    test: |
+      current.res.status != 200
