@@ -306,10 +306,11 @@ func TestTodo_Start(t *testing.T) {
 			require.NoError(t, err)
 
 			// Set initial status
-			if tt.initialStatus == TodoStatusCompleted {
+			switch tt.initialStatus {
+			case TodoStatusCompleted:
 				err = todo.Complete()
 				require.NoError(t, err)
-			} else if tt.initialStatus == TodoStatusInProgress {
+			case TodoStatusInProgress:
 				err = todo.Start()
 				require.NoError(t, err)
 			}
@@ -366,10 +367,11 @@ func TestTodo_Complete(t *testing.T) {
 			require.NoError(t, err)
 
 			// Set initial status
-			if tt.initialStatus == TodoStatusInProgress {
+			switch tt.initialStatus {
+			case TodoStatusInProgress:
 				err = todo.Start()
 				require.NoError(t, err)
-			} else if tt.initialStatus == TodoStatusCompleted {
+			case TodoStatusCompleted:
 				err = todo.Complete()
 				require.NoError(t, err)
 			}
