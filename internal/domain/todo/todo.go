@@ -21,7 +21,7 @@ type Todo struct {
 // NewTodo creates a new Todo.
 func NewTodo(title string, body string) (*Todo, error) {
 	if title == "" {
-		return nil, ErrTitleRequired
+		return nil, &ValidationError{Field: "title", Message: "title is required"}
 	}
 	now := time.Now()
 	return &Todo{
@@ -72,7 +72,7 @@ func (t Todo) CompletedAt() *time.Time {
 
 func (t *Todo) SetTitle(title string) error {
 	if title == "" {
-		return ErrTitleRequired
+		return &ValidationError{Field: "title", Message: "title is required"}
 	}
 	t.title = title
 	t.updatedAt = time.Now()
@@ -88,7 +88,10 @@ func (t *Todo) SetBody(body string) error {
 // Start changes the Todo's status to in progress.
 func (t *Todo) Start() error {
 	if t.status == TodoStatusCompleted {
-		return ErrAlreadyCompleted
+		return &StateError{
+			Current: t.status,
+			Message: "todo is already completed",
+		}
 	}
 	t.status = TodoStatusInProgress
 	t.updatedAt = time.Now()
@@ -98,7 +101,10 @@ func (t *Todo) Start() error {
 // Complete changes the Todo's status to completed.
 func (t *Todo) Complete() error {
 	if t.status == TodoStatusCompleted {
-		return ErrAlreadyCompleted
+		return &StateError{
+			Current: t.status,
+			Message: "todo is already completed",
+		}
 	}
 	now := time.Now()
 	t.status = TodoStatusCompleted

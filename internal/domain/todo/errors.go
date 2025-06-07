@@ -1,18 +1,36 @@
 package todo
 
-import "errors"
+import "fmt"
 
-// Domain errors
-var (
-	// ErrNotFound is returned when a todo is not found
-	ErrNotFound = errors.New("todo not found")
-	
-	// ErrTitleRequired is returned when title is empty
-	ErrTitleRequired = errors.New("title is required")
-	
-	// ErrInvalidStateTransition is returned when trying to change to an invalid state
-	ErrInvalidStateTransition = errors.New("invalid state transition")
-	
-	// ErrAlreadyCompleted is returned when trying to modify a completed todo
-	ErrAlreadyCompleted = errors.New("todo is already completed")
-)
+// NotFoundError represents an error when a todo is not found
+type NotFoundError struct {
+	ID TodoID
+}
+
+func (e *NotFoundError) Error() string {
+	return fmt.Sprintf("todo not found: %s", e.ID.String())
+}
+
+// ValidationError represents a validation error
+type ValidationError struct {
+	Field   string
+	Message string
+}
+
+func (e *ValidationError) Error() string {
+	if e.Field != "" {
+		return fmt.Sprintf("%s: %s", e.Field, e.Message)
+	}
+	return e.Message
+}
+
+// StateError represents an invalid state transition error
+type StateError struct {
+	Current TodoStatus
+	Message string
+}
+
+func (e *StateError) Error() string {
+	return e.Message
+}
+

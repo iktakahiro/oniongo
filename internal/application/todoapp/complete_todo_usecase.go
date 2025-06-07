@@ -47,15 +47,17 @@ func (u *completeTodoUseCase) Execute(ctx context.Context, req CompleteTodoReque
 	err := u.txRunner.RunInTx(ctx, func(ctx context.Context) error {
 		foundTodo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
-			if errors.Is(err, todo.ErrNotFound) {
+			var notFoundErr *todo.NotFoundError
+			if errors.As(err, &notFoundErr) {
 				return err
 			}
 			return fmt.Errorf("failed to find todo: %w", err)
 		}
 
 		if err := foundTodo.Complete(); err != nil {
-			// Preserve domain errors (ErrAlreadyCompleted)
-			if errors.Is(err, todo.ErrAlreadyCompleted) {
+			// Preserve domain errors
+			var stateErr *todo.StateError
+			if errors.As(err, &stateErr) {
 				return err
 			}
 			return fmt.Errorf("failed to complete todo: %w", err)
@@ -68,7 +70,9 @@ func (u *completeTodoUseCase) Execute(ctx context.Context, req CompleteTodoReque
 	})
 	if err != nil {
 		// Preserve domain errors
-		if errors.Is(err, todo.ErrNotFound) || errors.Is(err, todo.ErrAlreadyCompleted) {
+		var notFoundErr *todo.NotFoundError
+		var stateErr *todo.StateError
+		if errors.As(err, &notFoundErr) || errors.As(err, &stateErr) {
 			return err
 		}
 		return fmt.Errorf("failed to execute transaction: %w", err)

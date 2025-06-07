@@ -13,16 +13,22 @@ func toConnectError(err error) error {
 		return nil
 	}
 
-	switch {
-	case errors.Is(err, domainTodo.ErrNotFound):
+	// Check error types using errors.As
+	var notFoundErr *domainTodo.NotFoundError
+	if errors.As(err, &notFoundErr) {
 		return connect.NewError(connect.CodeNotFound, err)
-	case errors.Is(err, domainTodo.ErrTitleRequired):
-		return connect.NewError(connect.CodeInvalidArgument, err)
-	case errors.Is(err, domainTodo.ErrInvalidStateTransition):
-		return connect.NewError(connect.CodeFailedPrecondition, err)
-	case errors.Is(err, domainTodo.ErrAlreadyCompleted):
-		return connect.NewError(connect.CodeFailedPrecondition, err)
-	default:
-		return connect.NewError(connect.CodeInternal, err)
 	}
+
+	var validationErr *domainTodo.ValidationError
+	if errors.As(err, &validationErr) {
+		return connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	var stateErr *domainTodo.StateError
+	if errors.As(err, &stateErr) {
+		return connect.NewError(connect.CodeFailedPrecondition, err)
+	}
+
+	// Default to internal error
+	return connect.NewError(connect.CodeInternal, err)
 }

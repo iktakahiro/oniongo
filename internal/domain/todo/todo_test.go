@@ -33,14 +33,14 @@ func TestNewTodo(t *testing.T) {
 			title:       "",
 			body:        "This is a test todo",
 			expectError: true,
-			errorMsg:    "title is required",
+			errorMsg:    "title: title is required",
 		},
 		{
 			name:        "todo with both empty",
 			title:       "",
 			body:        "",
 			expectError: true,
-			errorMsg:    "title is required",
+			errorMsg:    "title: title is required",
 		},
 	}
 
@@ -210,7 +210,7 @@ func TestTodo_SetTitle(t *testing.T) {
 			name:        "empty title",
 			title:       "",
 			expectError: true,
-			errorMsg:    "title is required",
+			errorMsg:    "title: title is required",
 		},
 	}
 

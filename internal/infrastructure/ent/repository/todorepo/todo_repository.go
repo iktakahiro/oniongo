@@ -76,7 +76,7 @@ func (r todoRepository) FindByID(
 	entity, err := tx.TodoSchema.Get(ctx, id.UUID())
 	if err != nil {
 		if entgen.IsNotFound(err) {
-			return nil, todo.ErrNotFound
+			return nil, &todo.NotFoundError{ID: id}
 		}
 		return nil, fmt.Errorf("failed to find todo %v: %w", id, err)
 	}

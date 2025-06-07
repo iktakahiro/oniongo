@@ -49,7 +49,8 @@ func (u getTodoUseCase) Execute(ctx context.Context, req GetTodoRequest) (*todo.
 		foundTodo, err := u.todoRepository.FindByID(ctx, req.ID)
 		if err != nil {
 			// Preserve domain errors
-			if errors.Is(err, todo.ErrNotFound) {
+			var notFoundErr *todo.NotFoundError
+			if errors.As(err, &notFoundErr) {
 				return err
 			}
 			return fmt.Errorf("failed to find todo: %w", err)
@@ -59,7 +60,8 @@ func (u getTodoUseCase) Execute(ctx context.Context, req GetTodoRequest) (*todo.
 	})
 	if err != nil {
 		// Preserve domain errors
-		if errors.Is(err, todo.ErrNotFound) {
+		var notFoundErr *todo.NotFoundError
+		if errors.As(err, &notFoundErr) {
 			return nil, err
 		}
 		return nil, fmt.Errorf("failed to execute transaction: %w", err)
