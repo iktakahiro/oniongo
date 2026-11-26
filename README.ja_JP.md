@@ -9,6 +9,7 @@
 **注意**: このリポジトリは「GoアプリケーションでDDDアーキテクチャを実装する方法」を示すサンプルです。参考にする場合は、本番環境にデプロイする前に認証とセキュリティを実装してください！
 
 * Python実装版: [dddpy](https://github.com/iktakahiro/dddpy)
+* Rust実装版: [dddrs](https://github.com/iktakahiro/dddrs)
 
 ## 技術スタック
 
